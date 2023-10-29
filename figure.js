@@ -22,9 +22,23 @@ var vertices = [
     vec4( 0.5, -0.5, -0.5, 1.0 )
 ];
 
+var colors = [
 
+    vec4( 0.1,  0.1,  0.1, 1.0 ),
+    vec4( 0.5,  0.5,  0.5, 1.0 ),
+    vec4( 0.2,  0.2,  0.2, 1.0 ),
+    vec4( 0.2,  0.2,  0.2, 1.0 ),
+    vec4( 0.1,  0.1,  0.1, 1.0 ),
+    vec4( 0.3,  0.3,  0.3, 1.0 ),
+    vec4( 0.5,  0.5,  0.5, 1.0 ),
+    vec4( 0.1,  0.1,  0.1, 1.0 )
+];
+
+
+// Add when new body part
 var torsoId = 0;
 var headId  = 1;
+var lowerHeadId  = 11;
 var head1Id = 1;
 var head2Id = 10;
 var leftUpperArmId = 2;
@@ -37,8 +51,11 @@ var rightUpperLegId = 8;
 var rightLowerLegId = 9;
 
 
+//Head
 var torsoHeight = 5.0;
-var torsoWidth = 1.0;
+var torsoWidth = 5.0;
+
+
 var upperArmHeight = 3.0;
 var lowerArmHeight = 2.0;
 var upperArmWidth  = 0.5;
@@ -47,14 +64,22 @@ var upperLegWidth  = 0.5;
 var lowerLegWidth  = 0.5;
 var lowerLegHeight = 2.0;
 var upperLegHeight = 3.0;
-var headHeight = 1.5;
-var headWidth = 1.0;
 
-var numNodes = 10;
-var numAngles = 11;
+var headHeight = 3;
+var headWidth = 0.5;
+
+var lowerHeadHeight  = 0.5;
+var lowerHeadWidth = 2.0;
+
+// Increase when new body part
+var numNodes = 11;
+
+// Increase when new joint
+var numAngles = 12;
 var angle = 0;
 
-var theta = [0, 0, 0, 0, 0, 0, 180, 0, 180, 0, 0];
+// Add new when new 
+var theta = [0, 0, 0, 0, 0, 0, 180, 0, 180, 0, 0 ,0];
 
 var numVertices = 24;
 
@@ -68,7 +93,7 @@ var vBuffer;
 var modelViewLoc;
 
 var pointsArray = [];
-
+var colorsArray = [];
 //-------------------------------------------
 
 function scale4(a, b, c) {
@@ -120,28 +145,29 @@ function initNodes(Id) {
     
     case leftUpperArmId:
     
-    m = translate(-(torsoWidth+upperArmWidth), 0.9*torsoHeight, 0.0);
+    m = translate(-(torsoWidth/2.25), 0.9*torsoHeight, 0.0);
 	m = mult(m, rotate(theta[leftUpperArmId], 1, 0, 0));
+
     figure[leftUpperArmId] = createNode( m, leftUpperArm, rightUpperArmId, leftLowerArmId );
     break;
 
     case rightUpperArmId:
     
-    m = translate(torsoWidth+upperArmWidth, 0.9*torsoHeight, 0.0);
+    m = translate(torsoWidth/2.25, 0.9*torsoHeight, 0.0);
 	m = mult(m, rotate(theta[rightUpperArmId], 1, 0, 0));
     figure[rightUpperArmId] = createNode( m, rightUpperArm, leftUpperLegId, rightLowerArmId );
     break;
     
     case leftUpperLegId:
     
-    m = translate(-(torsoWidth+upperLegWidth), 0.1*upperLegHeight, 0.0);
+    m = translate(-(torsoWidth/2.25), 0.1*upperLegHeight, 0.0);
 	m = mult(m , rotate(theta[leftUpperLegId], 1, 0, 0));
     figure[leftUpperLegId] = createNode( m, leftUpperLeg, rightUpperLegId, leftLowerLegId );
     break;
 
     case rightUpperLegId:
     
-    m = translate(torsoWidth+upperLegWidth, 0.1*upperLegHeight, 0.0);
+    m = translate(torsoWidth/2.25, 0.1*upperLegHeight, 0.0);
 	m = mult(m, rotate(theta[rightUpperLegId], 1, 0, 0));
     figure[rightUpperLegId] = createNode( m, rightUpperLeg, null, rightLowerLegId );
     break;
@@ -174,6 +200,12 @@ function initNodes(Id) {
     figure[rightLowerLegId] = createNode( m, rightLowerLeg, null, null );
     break;
     
+    case lowerHeadId:
+    m = translate(0.0, upperLegHeight, 0.0);
+    m = mult(m, rotate(theta[rightLowerLegId], 1, 0, 0));
+    figure[rightLowerLegId] = createNode( m, rightLowerLeg, null, null );
+    break;
+
     }
 
 }
@@ -201,6 +233,14 @@ function head() {
    
     instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * headHeight, 0.0 ));
 	instanceMatrix = mult(instanceMatrix, scale4(headWidth, headHeight, headWidth) );
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+}
+
+function lowerHead() {
+   
+    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * headHeight, 0.0 ));
+    instanceMatrix = mult(instanceMatrix, scale4(headWidth, headHeight, headWidth) );
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
@@ -269,11 +309,24 @@ function rightLowerLeg() {
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
+function lowerHead() {
+
+    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * lowerLegHeight, 0.0) );
+    instanceMatrix = mult(instanceMatrix, scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth) )
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+}
+
 function quad(a, b, c, d) {
      pointsArray.push(vertices[a]); 
      pointsArray.push(vertices[b]); 
      pointsArray.push(vertices[c]);     
      pointsArray.push(vertices[d]);    
+
+     colorsArray.push(colors[a]);
+     colorsArray.push(colors[b]);
+     colorsArray.push(colors[c]);
+     colorsArray.push(colors[d]);
 }
 
 
@@ -327,6 +380,15 @@ window.onload = function init() {
     gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
     
+    var colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(colorsArray), gl.STATIC_DRAW);
+
+    var colorLocation = gl.getAttribLocation(program, "vColor");
+    gl.vertexAttribPointer(colorLocation, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(colorLocation);
+
+
         document.getElementById("slider0").onchange = function() {
         theta[torsoId ] = event.srcElement.value;
         initNodes(torsoId);
@@ -372,6 +434,10 @@ window.onload = function init() {
     document.getElementById("slider10").onchange = function() {
          theta[head2Id] = event.srcElement.value;
          initNodes(head2Id);
+    };
+    document.getElementById("slider11").onchange = function() {
+         theta[lowerHead] = event.srcElement.value;
+         initNodes(lowerHead);
     };
 
     for(i=0; i<numNodes; i++) initNodes(i);
