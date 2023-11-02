@@ -8,12 +8,12 @@ attribute  vec4 vColor;
 
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
-
+uniform mat4 r;
 varying vec4 fragColor;
 
 void main() 
 {
-    gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+    gl_Position =  r * projectionMatrix * modelViewMatrix * vPosition;
     fragColor = vColor;
 
 } 
@@ -115,7 +115,115 @@ right lower head angle -180 <input id="slide" type="range"
   />
  180
 </div><br/>
+
+<div id="slider12">
+        right lower head angle -180 <input id="slide" type="range"
+         min="-180" max="180" step="10" value="0"
+          />
+         180
+</div><br/>
+
+
+<div id="slider13">
+        right lower head angle -180 <input id="slide" type="range"
+         min="-180" max="180" step="10" value="0"
+          />
+         180
+
+</div><br/>
+
+<div id="slider14">
+    right lower head angle -180 <input id="slide" type="range"
+     min="-180" max="180" step="10" value="0"
+      />
+     180
+
+</div><br/>
+<div id="slider15">
+    right lower head angle -180 <input id="slide" type="range"
+     min="-180" max="180" step="10" value="0"
+      />
+     180
+
+</div><br/>
+<div id="slider16">
+    right lower head angle -180 <input id="slide" type="range"
+     min="-180" max="180" step="10" value="0"
+      />
+     180
+
+</div><br/>
+<div id="slider17">
+    right lower head angle -180 <input id="slide" type="range"
+     min="-180" max="180" step="10" value="0"
+      />
+     180
+
+</div><br/>
+
+<div id="slider18">
+    right lower head angle -180 <input id="slide" type="range"
+     min="-180" max="180" step="10" value="0"
+      />
+     180
+
+</div><br/>
+<div id="slider19">
+    right lower head angle -180 <input id="slide" type="range"
+     min="-180" max="180" step="10" value="0"
+      />
+     180
+
+</div><br/>
+<div id="slider20">
+    right lower head angle -180 <input id="slide" type="range"
+     min="-180" max="180" step="10" value="0"
+      />
+     180
+
+</div><br/>
+<div id="slider21">
+    right lower head angle -180 <input id="slide" type="range"
+     min="-180" max="180" step="10" value="0"
+      />
+     180
+
+</div><br/>
+<div id="slider22">
+    right lower head angle -180 <input id="slide" type="range"
+     min="-180" max="180" step="10" value="0"
+      />
+     180
+
+</div><br/>
+<div id="slider23">
+    right lower head angle -180 <input id="slide" type="range"
+     min="-180" max="180" step="10" value="0"
+      />
+     180
+
+</div><br/>
+<div id="slider24">
+    right lower head angle -180 <input id="slide" type="range"
+     min="-180" max="180" step="10" value="0"
+      />
+     180
+
+</div><br/>
+<div id="slider25">
+    right lower head angle -180 <input id="slide" type="range"
+     min="-180" max="180" step="10" value="0"
+      />
+     180
+
+</div><br/>
+
+
+
 <body>
+
+
+
 <canvas id="gl-canvas" width="512"" height="512"
 Oops ... your browser doesn't support the HTML5 canvas element
 </canvas>
