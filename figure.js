@@ -111,8 +111,8 @@ var upperLegHeight = 3.0;
 var headHeight = 3;
 var headWidth = 0.5;
 
-var lowerHeadHeight  = 0.5;
-var lowerHeadWidth = 2.0;
+var lowerHeadHeight  = 2.5;
+var lowerHeadWidth = 0.5;
 
 var midLegHeight = 0.5;
 var midLegWidth = 2.0;
@@ -133,7 +133,7 @@ var numAngles = 25;
 var angle = 0;
 
 // Add new when new 
-var theta = [0, 0, 0, 0, 0, 0, 180, 0, 180, 0, 0 ,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+var theta = [0, 0, 0, 0, 0, 0, 180, 0, 180, 0, 0 ,0,180,0,0,0,0,0,0,0,0,0,0,0,0];
 
 var numVertices = 24;
 
@@ -212,7 +212,7 @@ function initNodes(Id) {
     m = translate(0.0, -(torsoHeight+0.5*headHeight), 0.0);
 	m = mult(m, rotate(theta[head1Id], 1, 0, 0))
 	m = mult(m, rotate(theta[head2Id], 0, 1, 0));
-    m = mult(m, translate(0.0, -0.5*headHeight, 0.0));
+    m = mult(m, translate(0.0, 0.5*headHeight, 0.0));
     figure[headId] = createNode( m, head, leftUpperArmId, lowerHeadId);
     break;
     
@@ -220,7 +220,7 @@ function initNodes(Id) {
 
     case legUpId:
 
-        m = translate(-(torsoWidth/2.25), 0.9*torsoHeight, 0.0);
+        m = translate((torsoWidth/1.25), 0.1*torsoHeight, 0.0);
         m = mult(m, rotate(theta[legUpId], 1, 0, 0));
     
         figure[legUpId] = createNode( m, legUp, legUpId2, legMidArmId );
@@ -228,7 +228,7 @@ function initNodes(Id) {
     break;
 
     case legUpId2:
-        m = translate(-(torsoWidth/2.25), 0.9*torsoHeight, 0.0);
+        m = translate(-(torsoWidth/1.25), 0.1*torsoHeight, 0.0);
         m = mult(m, rotate(theta[legUpId2], 1, 0, 0));
     
         figure[legUpId2] = createNode( m, legUp2, legUpId3, legMidArmId2 );
@@ -236,7 +236,7 @@ function initNodes(Id) {
 
     case legUpId3:
     
-    m = translate(-(torsoWidth/2.25), 0.9*torsoHeight, 0.0);
+    m = translate(-(torsoWidth/10.25), torsoHeight, 0.0);
 	m = mult(m, rotate(theta[legUpId3], 1, 0, 0));
 
     figure[legUpId3] = createNode( m, legUp3, null, legMidArmId3 );
