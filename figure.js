@@ -498,7 +498,8 @@ window.onload = function init() {
     program = initShaders(gl, "vertex-shader", "fragment-shader");
 
     gl.useProgram(program);
-
+    gl.enable(gl.DEPTH_TEST);
+    
     instanceMatrix = mat4();
 
     projectionMatrix = ortho(-10.0, 10.0, -10.0, 10.0, -10.0, 10.0);
@@ -682,7 +683,7 @@ window.onload = function init() {
 
 var render = function () {
 
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     if (trackballMove) {
         axis = normalize(axis);

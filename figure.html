@@ -38,139 +38,147 @@ void main()
 <script type="text/javascript" src="Common/InitShaders.js"></script>
 <script type="text/javascript" src="Common/MV.js"></script>
 <script type="text/javascript" src="figure.js"></script>
+<script type="text/javascript" src="ui.js"></script>
+<link rel="stylesheet" type="text/css" href="style.css">
 
 <body>
-
     <div style="float: left;">
-        <div id="torsoId">
-            torso angle -180 <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
-            180
-        </div><br />
-        <div id="cornerFrontLeftUpperLegId">
-            Corner Front Left Upper Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" /> 
-            180
-        </div><br />
-        <div id="cornerFrontLeftMiddleLegId">
-            Corner Front Left Middle Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
-            180
-        </div><br />
-        <div id="cornerFrontLeftLowerLegId">
-            Corner Front Left Lower Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
-            180
-        </div><br />
-        <div id="cornerFrontRightUpperLegId">
-            Corner Front Right Upper Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" /> 
-            180
-        </div><br />
-        <div id="cornerFrontRightMiddleLegId">
-            Corner Front Right Middle Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" /> 
-            180
-        </div><br />
-        <div id="cornerFrontRightLowerLegId">
-            Corner Front Right Lower Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
-            180
-        </div><br />
-        <div id="cornerBackLeftUpperLegId">
-            Corner Back Left Upper Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
-            180
-        </div><br />
-        <div id="cornerBackLeftMiddleLegId">
-            Corner Back Left Middle Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
-            180
-        </div><br />
-        <div id="cornerBackLeftLowerLegId">
-            Corner Back Left Lower Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
-            180
-        </div><br />
-        <div id="cornerBackRightUpperLegId">
-            Corner Back Right Upper Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" /> 
-            180
-        </div><br />
-        <div id="cornerBackRightMiddleLegId">
-            Corner Back Right Middle Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" /> 
-            180
-        </div><br />
-        <div id="cornerBackRightLowerLegId">
-            Corner Back Right Lower Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
-            180
-        </div><br />
-        <div id="middleFrontUpperLegId">
-            Middle Front Upper Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" /> 
-            180
-        </div><br />
-        <div id="middleFrontMiddleLegId">
-            Middle Front Middle Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
-             180
-        </div><br />
-        <div id="middleFrontLowerLegId">
-            Middle Front Lower Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
-             180
-        </div><br />
-        <div id="middleBackUpperLegId">
-            Middle Back Upper Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" /> 
-            180
-        </div><br />
-        <div id="middleBackMiddleLegId">
-            Middle Back Middle Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" /> 
-            180
-        </div><br />
-        <div id="middleBackLowerLegId">
-            Middle Back Lower Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
-             180
-        </div><br />
-        <div id="middleLeftUpperLegId">
-            Middle Left Upper Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
-             180
-        </div><br />
-        <div id="middleLeftMiddleLegId">
-            Middle Left Middle Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
-             180
-        </div><br />
-        <div id="middleLeftLowerLegId">
-            Middle Left Lower Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
-             180
-        </div><br />
-        <div id="middleRightUpperLegId">
-            Middle Right Upper Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" /> 
-            180
-        </div><br />
-        <div id="middleRightMiddleLegId">
-            Middle Right Middle Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" /> 
-            180
-        </div><br />
-        <div id="middleRightLowerLegId">
-            Middle Right Lower Leg -180 
-            <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
-             180
-        </div><br />
-    </div>
-
-    <div style="float: right;">
         <canvas id="gl-canvas" width="512"" height=" 512">Oops ... your browser doesn't support the HTML5 canvas
             element</canvas>
+    </div>
+    <div class="props">
+        
+        <div style="float: right;">
+            <div id="torsoId">
+                torso angle -180 <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="cornerFrontLeftUpperLegId">
+                Corner Front Left Upper Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="cornerFrontLeftMiddleLegId">
+                Corner Front Left Middle Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="cornerFrontLeftLowerLegId">
+                Corner Front Left Lower Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="cornerFrontRightUpperLegId">
+                Corner Front Right Upper Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="cornerFrontRightMiddleLegId">
+                Corner Front Right Middle Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="cornerFrontRightLowerLegId">
+                Corner Front Right Lower Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="cornerBackLeftUpperLegId">
+                Corner Back Left Upper Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="cornerBackLeftMiddleLegId">
+                Corner Back Left Middle Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="cornerBackLeftLowerLegId">
+                Corner Back Left Lower Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="cornerBackRightUpperLegId">
+                Corner Back Right Upper Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="cornerBackRightMiddleLegId">
+                Corner Back Right Middle Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="cornerBackRightLowerLegId">
+                Corner Back Right Lower Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="middleFrontUpperLegId">
+                Middle Front Upper Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="middleFrontMiddleLegId">
+                Middle Front Middle Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="middleFrontLowerLegId">
+                Middle Front Lower Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="middleBackUpperLegId">
+                Middle Back Upper Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="middleBackMiddleLegId">
+                Middle Back Middle Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="middleBackLowerLegId">
+                Middle Back Lower Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="middleLeftUpperLegId">
+                Middle Left Upper Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="middleLeftMiddleLegId">
+                Middle Left Middle Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="middleLeftLowerLegId">
+                Middle Left Lower Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="middleRightUpperLegId">
+                Middle Right Upper Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="middleRightMiddleLegId">
+                Middle Right Middle Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+            <div id="middleRightLowerLegId">
+                Middle Right Lower Leg -180
+                <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div><br />
+        </div>
+    </div>
+    <div id="timeline-container">
+        <!-- Add markers dynamically via JavaScript -->
+        <div id="ruler">
+        </div>
     </div>
 </body>
 
