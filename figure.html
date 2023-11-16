@@ -30,10 +30,11 @@ varying vec4 fragColor; // Receive the color from the vertex shader
 varying vec2 texCoord; // Receive texture coordinates from the vertex shader
 
 uniform sampler2D texture; // Uniform for the texture
-
+uniform sampler2D texture2; // Uniform for the texture
 void main()
 {
-    gl_FragColor = texture2D(texture, texCoord) * fragColor;
+
+    gl_FragColor = texture2D(texture, texCoord) * texture2D(texture2, texCoord) * fragColor;
 }
 </script>
 

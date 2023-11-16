@@ -35,9 +35,9 @@ var colors = [
 
 var colorsAnother = [
 
-    vec4(1.0, 1.0, 1.0, 1.0),
-    vec4(1.0, 0.90, 0.90, 1.0),
-    vec4(1.0, 0.80, 0.80, 1.0),
+    vec4(0, 0, 1, 1.0),
+    vec4(1, 1, 1, 1.0),
+    vec4(1, 1, 1, 1.0),
     vec4(1.0, 1.0, 1.0, 1.0),
     vec4(0.80, 0.80, 0.80, 1.0),
     vec4(0.90, 0.80, 0.80, 1.0),
@@ -193,10 +193,24 @@ var startX, startY;
 var texCoordsArray = [];
 
 var texture;
+var textureBackground;
+
 var texCoord = [
+    vec2(0.5, 0.5),
+    vec2(1, 0.5),
+    vec2(1, 1),
+    vec2(0.5, 1)
+];
+var texCoordOld = [
     vec2(0, 0),
     vec2(1, 0),
     vec2(1, 1),
+    vec2(0, 1)
+];
+var texCoordBackground = [
+    vec2(0, 0.5),
+    vec2(0.5, 0.5),
+    vec2(0.5, 1),
     vec2(0, 1)
 ];
 
@@ -420,10 +434,10 @@ function torso() {
 
 function head() {
 
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * headHeight, 0.0));
-    instanceMatrix = mult(instanceMatrix, scale4(headWidth, headHeight, headWidth));
+    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * headHeight, -20.0));
+    instanceMatrix = mult(instanceMatrix, scale4(40*headWidth, 30*headHeight, headWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-    for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
+    for (var i = 12; i < 18; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function lowerHead() {
@@ -433,6 +447,8 @@ function lowerHead() {
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
+
+
 
 // Make one function which takes params to create below functions belows are too much duplicated
 function createBodyPart(height, width, scale) {
@@ -446,10 +462,23 @@ function createBodyPart(height, width, scale) {
 
 function renderRock(height, width) {
 
-    instanceMatrix = mult(modelViewMatrix, translate(7.0, 2 * -1 * height, 0.0));
+
+    instanceMatrix = mult(modelViewMatrix, translate(17.5, 2 * -1.2 * height, 0.0));
     instanceMatrix = mult(instanceMatrix, scale4(width, height, width));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-    for (var i = 48; i < index; i += 3)
+    for (var i = 72; i < index; i += 3)
+        gl.drawArrays(gl.TRIANGLES, i, 3)
+
+}
+
+
+function renderBaloon(height, width) {
+
+
+    instanceMatrix = mult(modelViewMatrix, translate(-10.5, 2 * -1.2 * height, 0.0));
+    instanceMatrix = mult(instanceMatrix, scale4(width, height, width));
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+    for (var i = 72; i < index; i += 3)
         gl.drawArrays(gl.TRIANGLES, i, 3)
 
 }
@@ -464,7 +493,7 @@ function lowerLowerHead() {
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
-function quad(a, b, c, d, isFront, pos, color) {
+function quad(a, b, c, d, isFront, pos, color, isBg) {
     var t1 = subtract(vertices[b], vertices[a]);
     var t2 = subtract(vertices[c], vertices[a]);
     var normal = normalize(cross(t2, t1));
@@ -475,15 +504,23 @@ function quad(a, b, c, d, isFront, pos, color) {
     colorsArray.push(color[pos]);
     if (isFront) {
         texCoordsArray.push(texCoord[0]);
-    } else {
-        texCoordsArray.push(texCoord[0]);
+    } 
+    else if(isBg) {
+        texCoordsArray.push(texCoordBackground[0]);   
+    }
+    else {
+        texCoordsArray.push(texCoord[1]);
     }
 
     pointsArray.push(vertices[b]);
     colorsArray.push(color[pos]);
     if (isFront) {
         texCoordsArray.push(texCoord[1]);
-    } else {
+    }
+    else if(isBg) {
+        texCoordsArray.push(texCoordBackground[1]);   
+    } 
+    else {
         texCoordsArray.push(texCoord[0]);
     }
 
@@ -491,7 +528,11 @@ function quad(a, b, c, d, isFront, pos, color) {
     colorsArray.push(color[pos]);
     if (isFront) {
         texCoordsArray.push(texCoord[2]);
-    } else {
+    }
+    else if(isBg) {
+        texCoordsArray.push(texCoordBackground[2]);   
+    } 
+    else {
         texCoordsArray.push(texCoord[0]);
     }
 
@@ -499,19 +540,24 @@ function quad(a, b, c, d, isFront, pos, color) {
     colorsArray.push(color[pos]);
     if (isFront) {
         texCoordsArray.push(texCoord[3]);
-    } else {
+    }
+    else if(isBg) {
+        texCoordsArray.push(texCoordBackground[3]);  
+        console.log("HERE!!") 
+    } 
+    else {
         texCoordsArray.push(texCoord[0]);
     }
 }
 
 
-function cube(isHead, color) {
-    quad(1, 0, 3, 2, isHead, 0, color);
-    quad(2, 3, 7, 6, false, 1, color);
-    quad(3, 0, 4, 7, false, 2, color);
-    quad(6, 5, 1, 2, false, 3, color);
-    quad(4, 5, 6, 7, false, 4, color);
-    quad(5, 4, 0, 1, false, 5, color);
+function cube(isHead, color , isBg) {
+    quad(1, 0, 3, 2, isHead, 0, color, isBg);
+    quad(2, 3, 7, 6, false, 1, color, isBg);
+    quad(3, 0, 4, 7, false, 2, color, isBg);
+    quad(6, 5, 1, 2, false, 3, color, isBg);
+    quad(4, 5, 6, 7, false, 4, color, isBg);
+    quad(5, 4, 0, 1, false, 5, color, isBg);
 
 }
 
@@ -582,15 +628,51 @@ function stopMotion(x, y) {
 }
 
 function triangle(a, b, c) {
-    colorsArray.push(colorsWhite[0]);
-    colorsArray.push(colorsWhite[1]);
-    colorsArray.push(colorsWhite[2]);
+    colorsArray.push(colorsAnother[0]);
+    colorsArray.push(colorsAnother[1]);
+    colorsArray.push(colorsAnother[2]);
 
     pointsArray.push(a);
     pointsArray.push(b);
     pointsArray.push(c);
 
+    texCoordsArray.push(texCoord[0]);
+    texCoordsArray.push(texCoord[0]);
+    texCoordsArray.push(texCoord[0]);
     index += 3;
+}
+
+function renderPlane() {
+    // Define the vertices of a plane
+    const vertices = [
+        vec4(-1.0, -1.0, 0.0, 1.0),
+        vec4(1.0, -1.0, 0.0, 1.0),
+        vec4(1.0, 1.0, 0.0, 1.0),
+        vec4(-1.0, 1.0, 0.0, 1.0),
+    ];
+
+    // Define the colors for each vertex
+    const colors = [
+        vec4(1.0, 0.0, 0.0, 1.0), // Red
+        vec4(0.0, 1.0, 0.0, 1.0), // Green
+        vec4(0.0, 0.0, 1.0, 1.0), // Blue
+        vec4(1.0, 1.0, 0.0, 1.0), // Yellow
+    ];
+
+    // Define the texture coordinates for each vertex
+    const texCoords = [
+        vec2(0.0, 0.0),
+        vec2(1.0, 0.0),
+        vec2(1.0, 1.0),
+        vec2(0.0, 1.0),
+    ];
+
+    // Push the data into the respective arrays
+    for (let i = 0; i < vertices.length; i++) {
+        pointsArray.push(vertices[i]);
+        colorsArray.push(colors[i]);
+        texCoordsArray.push(texCoords[i]);
+    }
 }
 
 
@@ -967,8 +1049,12 @@ window.onload = function init() {
 
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix")
 
-    cube(false, colorsWhite);
-    cube(true, colorsAnother);
+    cube(false, colorsWhite,false);
+    cube(true, colorsWhite,false);
+    console.log(pointsArray)
+    cube(false, colorsWhite, true);
+    console.log(pointsArray)
+
     tetrahedron(va, vb, vc, vd, numTimesToSubdivide);
 
     vBuffer = gl.createBuffer();
@@ -1015,7 +1101,21 @@ window.onload = function init() {
         gl.generateMipmap(gl.TEXTURE_2D);
     });
     console.log(pointsArray)
+    textureBackground = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
 
+    // Fill the texture with a 1x1 blue pixel.
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+        new Uint8Array([0, 0, 255, 255]));
+    // Asynchronously load an image
+    var image = new Image();
+    image.src = "image-texture4.png";
+    image.addEventListener('load', function () {
+        // Now that the image has loaded make copy it to the texture.
+        gl.bindTexture(gl.TEXTURE_2D, textureBackground);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        gl.generateMipmap(gl.TEXTURE_2D);
+    });
 
     // function
     let fillValues = (value, id) => {
@@ -1031,7 +1131,7 @@ window.onload = function init() {
             initNodes(sliderVariables[id]);
         }
     }
-
+    
     sliderIds.forEach(id => {
         document.getElementById(id).onchange = function () {
             let value = parseInt(event.srcElement.value);
@@ -1124,7 +1224,9 @@ var render = function (timestamp) {
     } else if (mode === "pause") {
         // disable the sliders etc.
         traverse(torsoId);
-        //renderRock(5.0, 5.0);
+        renderRock(5.0, 5.0);
+        renderBaloon(1,1)
+        head(20, 20);
         requestAnimFrame(render);
     } else if (mode === "stop") {
         // Only works in edit mode
@@ -1133,12 +1235,19 @@ var render = function (timestamp) {
             rotationMatrix = mult(rotationMatrix, rotate(angle, axis));
             gl.uniformMatrix4fv(rotationMatrixLoc, false, flatten(rotationMatrix));
         }
-        //renderRock(5.0, 5.0);
+        renderRock(5.0, 5.0);
+        renderBaloon(1,1)
+        head(20, 20);
         traverse(torsoId);
         requestAnimFrame(render);
     } else if (mode === "idle") {
         // wait for animation to finish
-        //renderRock(5.0, 5.0);
+            // Configure texture
+           
+
+        renderRock(5.0, 5.0);
+        renderBaloon(1,1)
+        head(20, 20);
     }
 
 }
