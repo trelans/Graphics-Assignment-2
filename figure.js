@@ -33,6 +33,30 @@ var colors = [
     vec4(0.1, 0.1, 0.1, 1.0)
 ];
 
+var colorsAnother = [
+
+    vec4(1.0, 1.0, 1.0, 1.0),
+    vec4(1.0, 0.90, 0.90, 1.0),
+    vec4(1.0, 0.80, 0.80, 1.0),
+    vec4(1.0, 1.0, 1.0, 1.0),
+    vec4(0.80, 0.80, 0.80, 1.0),
+    vec4(0.90, 0.80, 0.80, 1.0),
+    vec4(0.90, 0.80, 0.80, 1.0),
+    vec4(1.0, 1.0, 1.0, 1.0)
+];
+
+var colorsWhite = [
+
+    vec4(1.0, 1.0, 1.0, 1.0),
+    vec4(1.0, 0.90, 0.90, 1.0),
+    vec4(1.0, 0.80, 0.80, 1.0),
+    vec4(1.0, 1.0, 1.0, 1.0),
+    vec4(0.80, 0.80, 0.80, 1.0),
+    vec4(0.90, 0.80, 0.80, 1.0),
+    vec4(0.90, 0.80, 0.80, 1.0),
+    vec4(1.0, 1.0, 1.0, 1.0)
+];
+
 let defaultTheta = [60, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0];
 
 // [{ id: 1, pointTime: 4.7, theta = [...], sliderValues = [...] }, { id: 2, pointTime: 1.0, theta = [...], sliderValues = [...] }, 
@@ -100,6 +124,15 @@ let middleRightUpperId = 22;
 let middleRightMiddleId = 23;
 let middleRightLowerId = 24;
 
+//Movement 
+let movementIdX = 25;
+let movementIdY = 26;
+let movementIdZ = 27;
+
+
+let torsoNewRotateAngel = 28;
+let torsoNewRotateAngel2 = 29;
+
 
 // Width and height of body parts
 var torsoHeight = 5.0;
@@ -120,11 +153,11 @@ var headWidth = 1.0;
 var numNodes = 25;
 
 // Increase when new joint
-var numAngles = 25;
+var numAngles = 30;
 var angle = 0;
 
 // Add new when new 
-var theta = [60, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0];
+var theta = [60, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 0, 0, 0, 0, 0];
 
 var numVertices = 25;
 
@@ -141,6 +174,7 @@ var pointsArray = [];
 var colorsArray = [];
 
 
+
 // TrackBall
 
 var rotationMatrix;
@@ -155,6 +189,16 @@ var trackballMove = false;
 var lastPos = [0, 0, 0];
 var curx, cury;
 var startX, startY;
+
+var texCoordsArray = [];
+
+var texture;
+var texCoord = [
+    vec2(0, 0),
+    vec2(1, 0),
+    vec2(1, 1),
+    vec2(0, 1)
+];
 
 
 
@@ -191,7 +235,8 @@ function initNodes(Id) {
 
         case torsoId:
 
-            m = rotate(theta[torsoId], 0, 1, 0);
+            m = rotate(theta[torsoId], theta[torsoNewRotateAngel], 1, theta[torsoNewRotateAngel2]);
+            m = mult(m, translate(theta[movementIdX], theta[movementIdY], theta[movementIdZ]));
             figure[torsoId] = createNode(m, torso, null, cornerFrontLeftUpperId);
             break;
 
@@ -365,7 +410,7 @@ function torso() {
     instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * torsoHeight, 0.0));
     instanceMatrix = mult(instanceMatrix, scale4(torsoWidth, torsoHeight, torsoWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-    for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
+    for (var i = 6; i < 12; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function head() {
@@ -403,26 +448,55 @@ function lowerLowerHead() {
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
-function quad(a, b, c, d) {
-    pointsArray.push(vertices[a]);
-    pointsArray.push(vertices[b]);
-    pointsArray.push(vertices[c]);
-    pointsArray.push(vertices[d]);
+function quad(a, b, c, d, isFront, pos, color) {
+    var t1 = subtract(vertices[b], vertices[a]);
+    var t2 = subtract(vertices[c], vertices[a]);
+    var normal = normalize(cross(t2, t1));
+    normal = vec4(normal);
+    normal[3] = 0.0;
 
-    colorsArray.push(colors[a]);
-    colorsArray.push(colors[b]);
-    colorsArray.push(colors[c]);
-    colorsArray.push(colors[d]);
+    pointsArray.push(vertices[a]);
+    colorsArray.push(color[pos]);
+    if (isFront) {
+        texCoordsArray.push(texCoord[0]);
+    } else {
+        texCoordsArray.push(texCoord[0]);
+    }
+
+    pointsArray.push(vertices[b]);
+    colorsArray.push(color[pos]);
+    if (isFront) {
+        texCoordsArray.push(texCoord[1]);
+    } else {
+        texCoordsArray.push(texCoord[0]);
+    }
+
+    pointsArray.push(vertices[c]);
+    colorsArray.push(color[pos]);
+    if (isFront) {
+        texCoordsArray.push(texCoord[2]);
+    } else {
+        texCoordsArray.push(texCoord[0]);
+    }
+
+    pointsArray.push(vertices[d]);
+    colorsArray.push(color[pos]);
+    if (isFront) {
+        texCoordsArray.push(texCoord[3]);
+    } else {
+        texCoordsArray.push(texCoord[0]);
+    }
 }
 
 
-function cube() {
-    quad(1, 0, 3, 2);
-    quad(2, 3, 7, 6);
-    quad(3, 0, 4, 7);
-    quad(6, 5, 1, 2);
-    quad(4, 5, 6, 7);
-    quad(5, 4, 0, 1);
+function cube(isHead, color) {
+    quad(1, 0, 3, 2, isHead, 0, color);
+    quad(2, 3, 7, 6, false, 1, color);
+    quad(3, 0, 4, 7, false, 2, color);
+    quad(6, 5, 1, 2, false, 3, color);
+    quad(4, 5, 6, 7, false, 4, color);
+    quad(5, 4, 0, 1, false, 5, color);
+
 }
 
 function trackballView(x, y) {
@@ -502,7 +576,8 @@ window.onload = function init() {
         "middleFrontLowerLegId", "middleBackUpperLegId", "middleBackMiddleLegId",
         "middleBackLowerLegId", "middleLeftUpperLegId", "middleLeftMiddleLegId",
         "middleLeftLowerLegId", "middleRightUpperLegId", "middleRightMiddleLegId",
-        "middleRightLowerLegId"]
+        "middleRightLowerLegId", "translationXSlider", "translationYSlider", "translationZSlider",
+        "torsoRotation2", "torsoRotation3"]
 
     const sliderVariables = {
         "torsoId": torsoId,
@@ -529,7 +604,12 @@ window.onload = function init() {
         "middleLeftLowerLegId": middleLeftLowerId,
         "middleRightUpperLegId": middleRightUpperId,
         "middleRightMiddleLegId": middleRightMiddleId,
-        "middleRightLowerLegId": middleRightLowerId
+        "middleRightLowerLegId": middleRightLowerId,
+        "translationXSlider": movementIdX,
+        "translationYSlider": movementIdY,
+        "translationZSlider": movementIdZ,
+        "torsoRotation2": torsoNewRotateAngel,
+        "torsoRotation3": torsoNewRotateAngel2
     }
 
     const sliderOptions = {
@@ -589,6 +669,27 @@ window.onload = function init() {
         "middleRightLowerLegId": {
             notReversed: true,
         },
+        "translationXSlider": {
+            offsetAngle: 0,
+            notReversed: true
+        },
+        "translationYSlider": {
+            notReversed: true,
+            offsetAngle: 0
+        },
+        "translationZSlider": {
+            notReversed: true,
+            offsetAngle: 0
+        },
+        "torsoRotation2": {
+            notReversed: true,
+            offsetAngle: 0
+        },
+        "torsoRotation3": {
+            notReversed: true,
+            offsetAngle: 0
+        }
+
     }
 
     let normalizedSliderValue = (value, id) => {
@@ -655,11 +756,11 @@ window.onload = function init() {
             // if last operation is move
             if (operation.type === "move") {
                 // update the keyframe
-                /*
-                if (currentKeyframe == operation.id){
+
+                if (currentKeyframe == operation.id) {
                     keyframes[currentKeyframe].pointTime = operation.position;
                 }
-                */
+
 
             } else if (operation.type === "delete") {
                 /*
@@ -678,7 +779,7 @@ window.onload = function init() {
                 if (keyframeContainers[currentKeyframeContainer].ids.indexOf(operation.id) === -1) {
                     keyframeContainers[currentKeyframeContainer].ids.push(operation.id);
                 }
-                if(keyframeContainers[currentKeyframeContainer].positions.indexOf(operation.position) === -1){
+                if (keyframeContainers[currentKeyframeContainer].positions.indexOf(operation.position) === -1) {
                     keyframeContainers[currentKeyframeContainer].positions.push(operation.position);
                 }
 
@@ -776,7 +877,7 @@ window.onload = function init() {
     if (!gl) { alert("WebGL isn't available"); }
 
     gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(1.0, 1.0, 1.0, 1.0);
+    gl.clearColor(0.0, 0.7, 0.85, 1.0);
 
     //
     //  Load shaders and initialize attribute buffers
@@ -801,7 +902,9 @@ window.onload = function init() {
 
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix")
 
-    cube();
+    cube(false, colorsWhite);
+    cube(true, colorsAnother);
+
 
     vBuffer = gl.createBuffer();
 
@@ -819,6 +922,34 @@ window.onload = function init() {
     var colorLocation = gl.getAttribLocation(program, "vColor");
     gl.vertexAttribPointer(colorLocation, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(colorLocation);
+
+
+    // Load texture coordinates into a buffer
+    var tBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordsArray), gl.STATIC_DRAW);
+
+
+    var vTexCoord = gl.getAttribLocation(program, "vTexCoord");
+    gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vTexCoord);
+
+    texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+    // Fill the texture with a 1x1 blue pixel.
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+        new Uint8Array([0, 0, 255, 255]));
+    // Asynchronously load an image
+    var image = new Image();
+    image.src = "image-texture.png";
+    image.addEventListener('load', function () {
+        // Now that the image has loaded make copy it to the texture.
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        gl.generateMipmap(gl.TEXTURE_2D);
+    });
+    console.log(pointsArray)
 
 
     // function
@@ -840,8 +971,13 @@ window.onload = function init() {
     document.getElementById("moveAllLegs").onchange = function () {
         let value = parseInt(event.srcElement.value);
         sliderIds.forEach(id => {
-            if (id !== "torsoId") {
+            if (id !== "torsoId" && id !== "translationXSlider" && id !== "translationYSlider" && id !== "translationZSlider" && id !== "torsoRotation2" && id !== "torsoRotation3") {
                 fillValues(value, id);
+            }
+
+            if (sliderVariables[id] == 27 || sliderVariables[id] == 28 || sliderVariables[id] == 29 || sliderVariables[id] == 30 || sliderVariables[id] == 31) {
+                console.log("here")
+                initNodes(torsoId);
             }
         });
 
@@ -900,7 +1036,12 @@ let startTime = null;
 var render = function (timestamp) {
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    
+
+    // Configure texture
+    gl.activeTexture(gl.TEXTURE0); // Set the active texture unit
+    gl.bindTexture(gl.TEXTURE_2D, texture); // Bind the texture
+    gl.uniform1i(gl.getUniformLocation(program, "texture"), 0); // Set the texture unit to 0
+
     if (mode === "play") {
         if (startTime === null) {
             startTime = timestamp; // Set the start time only once
@@ -988,7 +1129,7 @@ let playScene = (timestamp, start_time, time_difference, difference_theta, previ
 
 
         console.log("keyframes", keyframes);
-        currentKeyframe = keyframes[0].id;        
+        currentKeyframe = keyframes[0].id;
         operations.push({ type: "play", id: currentKeyframe });
         document.getElementById("click-listener").click();
 

@@ -5,17 +5,20 @@
 
 attribute  vec4 vPosition;
 attribute  vec4 vColor;
+attribute vec2 vTexCoord; // New attribute for texture coordinates
+
 
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
 uniform mat4 r;
 varying vec4 fragColor;
+varying vec2 texCoord; // Pass texture coordinates to the fragment shader
 
 void main() 
 {
     gl_Position =  r * projectionMatrix * modelViewMatrix * vPosition;
     fragColor = vColor;
-
+    texCoord = vTexCoord;
 } 
 </script>
 
@@ -23,12 +26,13 @@ void main()
 
 precision mediump float;
 varying vec4 fragColor; // Receive the color from the vertex shader
+varying vec2 texCoord; // Receive texture coordinates from the vertex shader
+
+uniform sampler2D texture; // Uniform for the texture
 
 void main()
 {
-
-    gl_FragColor = fragColor; // Use the received color as the fragment color
-
+    gl_FragColor = texture2D(texture, texCoord) * fragColor;
 }
 </script>
 
@@ -45,15 +49,15 @@ void main()
     <div id="keyframes">
         <div id="keyframe-buttons">
             <div class="keyframe-btns">
-                <img src="./images/save.svg" id="save-btn"/>
+                <img src="./images/save.svg" id="save-btn" />
                 <p>Save Animations</p>
             </div>
             <div class="keyframe-btns">
-                <img src="./images/load.svg" id="load-btn"/>
+                <img src="./images/load.svg" id="load-btn" />
                 <p>Load Animations</p>
             </div>
             <div class="keyframe-btns">
-                <img src="./images/add.svg" id="add-btn"/>
+                <img src="./images/add.svg" id="add-btn" />
                 <p>Add Animation</p>
             </div>
         </div>
@@ -71,6 +75,14 @@ void main()
             <div id="torsoId">
                 torso angle -180
                 <input class="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div>
+            <div id="torsoRotation2">
+                torso angle -180 <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                180
+            </div>
+            <div id="torsoRotation3">
+                torso angle -180 <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
                 180
             </div>
             <div id="cornerFrontLeftUpperLegId">
@@ -193,6 +205,25 @@ void main()
                 <input class="slide" type="range" min="-180" max="180" step="10" value="0" />
                 180
             </div>
+
+            <div id="translationXSlider">
+                Translation X
+                <input id="slide" type="range" min="-10" max="10" step="1" value="0" />
+                10
+            </div>
+
+            <div id="translationYSlider">
+                Translation Y
+                <input id="slide" type="range" min="-10" max="10" step="1" value="0" />
+                10
+            </div>
+
+            <div id="translationZSlider">
+                Translation Z
+                <input id="slide" type="range" min="-10" max="10" step="1" value="0" />
+                10
+            </div>
+
             <div id="moveAllLegs">
                 Move all legs
                 <input class="slide" type="range" min="-180" max="180" step="10" value="0" />
@@ -200,9 +231,9 @@ void main()
         </div>
     </div>
     <div id="play-buttons">
-        <img src="./images/play.svg" id="play-btn"/>
-        <img src="./images/pause.svg" id="pause-btn"/>
-        <img src="./images/stop.svg" id="stop-btn"/>
+        <img src="./images/play.svg" id="play-btn" />
+        <img src="./images/pause.svg" id="pause-btn" />
+        <img src="./images/stop.svg" id="stop-btn" />
     </div>
     <div id="timeline-container">
         <!-- Add markers dynamically via JavaScript -->
