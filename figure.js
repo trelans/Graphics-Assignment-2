@@ -1,4 +1,3 @@
-
 var canvas;
 var gl;
 var program;
@@ -34,6 +33,14 @@ var colors = [
     vec4(0.1, 0.1, 0.1, 1.0)
 ];
 
+let defaultTheta = [60, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0];
+
+// [{ id: 1, pointTime: 4.7, theta = [...], sliderValues = [...] }, { id: 2, pointTime: 1.0, theta = [...], sliderValues = [...] }, 
+// { id: 3, pointTime: 1.5, theta = [...], sliderValues = [...] }]
+let keyframes = [];
+let currentKeyframe = 0;
+
+let mode = "stop"; // stop, play, pause
 
 // Body Parts
 let upperLeg;
@@ -45,53 +52,53 @@ let lowerLeg;
 var torsoId = 0;
 
 // Head
-var headId = 1;
-var head1Id = 1;
-var head2Id = 26;
+//var headId = 25;
+//var head1Id = 25;
+//var head2Id = 26;
 
 // Leg 1
-let cornerFrontLeftUpperId = 2;
-let cornerFrontLeftMiddleId = 3;
-let cornerFrontLeftLowerId = 4;
+let cornerFrontLeftUpperId = 1;
+let cornerFrontLeftMiddleId = 2;
+let cornerFrontLeftLowerId = 3;
 
 // Leg 2
-let cornerFrontRightUpperId = 5;
-let cornerFrontRightMiddleId = 6;
-let cornerFrontRightLowerId = 7;
+let cornerFrontRightUpperId = 4;
+let cornerFrontRightMiddleId = 5;
+let cornerFrontRightLowerId = 6;
 
 // Leg 3
-let cornerBackLeftUpperId = 8;
-let cornerBackLeftMiddleId = 9;
-let cornerBackLeftLowerId = 10;
+let cornerBackLeftUpperId = 7;
+let cornerBackLeftMiddleId = 8;
+let cornerBackLeftLowerId = 9;
 
 
 // Leg 4
-let cornerBackRightUpperId = 11;
-let cornerBackRightMiddleId = 12;
-let cornerBackRightLowerId = 13;
+let cornerBackRightUpperId = 10;
+let cornerBackRightMiddleId = 11;
+let cornerBackRightLowerId = 12;
 
 
 // Leg 5
-let middleFrontUpperId = 14;
-let middleFrontMiddleId = 15;
-let middleFrontLowerId = 16;
+let middleFrontUpperId = 13;
+let middleFrontMiddleId = 14;
+let middleFrontLowerId = 15;
 
 
 // Leg 6
-let middleBackUpperId = 17;
-let middleBackMiddleId = 18;
-let middleBackLowerId = 19;
+let middleBackUpperId = 16;
+let middleBackMiddleId = 17;
+let middleBackLowerId = 18;
 
 
 // Leg 7
-let middleLeftUpperId = 20;
-let middleLeftMiddleId = 21;
-let middleLeftLowerId = 22;
+let middleLeftUpperId = 19;
+let middleLeftMiddleId = 20;
+let middleLeftLowerId = 21;
 
 // Leg 8
-let middleRightUpperId = 23;
-let middleRightMiddleId = 24;
-let middleRightLowerId = 25;
+let middleRightUpperId = 22;
+let middleRightMiddleId = 23;
+let middleRightLowerId = 24;
 
 
 // Width and height of body parts
@@ -110,16 +117,16 @@ var headHeight = 1.5;
 var headWidth = 1.0;
 
 // Increase when new body part
-var numNodes = 26;
+var numNodes = 25;
 
 // Increase when new joint
-var numAngles = 27;
+var numAngles = 25;
 var angle = 0;
 
 // Add new when new 
-var theta = [60, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0];
+var theta = [60, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0];
 
-var numVertices = 24;
+var numVertices = 25;
 
 var stack = [];
 
@@ -185,20 +192,22 @@ function initNodes(Id) {
         case torsoId:
 
             m = rotate(theta[torsoId], 0, 1, 0);
-            figure[torsoId] = createNode(m, torso, null, headId);
+            figure[torsoId] = createNode(m, torso, null, cornerFrontLeftUpperId);
             break;
 
+        /*
         case headId:
         case head1Id:
         case head2Id:
 
 
-            m = translate(0.0, (torsoHeight + 0.5 * headHeight), 0.0);
-            m = mult(m, rotate(theta[head1Id], 1, 0, 0))
-            m = mult(m, rotate(theta[head2Id], 0, 1, 0));
-            m = mult(m, translate(0.0, -0.5 * headHeight, 0.0));
+            //m = translate(0.0, (torsoHeight + 0.5 * headHeight), 0.0);
+            //m = mult(m, rotate(theta[head1Id], 1, 0, 0))
+            //m = mult(m, rotate(theta[head2Id], 0, 1, 0));
+            //m = mult(m, translate(0.0, -0.5 * headHeight, 0.0));
             figure[headId] = createNode(m, head, cornerFrontLeftUpperId, null);
             break;
+        */
 
         // Corner Front Leg Cases
         case cornerFrontLeftUpperId:
@@ -302,7 +311,7 @@ function initNodes(Id) {
             m = mult(m, rotate(theta[middleBackLowerId], 1, 0, 0));
             figure[middleBackLowerId] = createNode(m, lowerLeg, null, null);
             break;
-        
+
         // Middle Left Leg Cases
         case middleLeftUpperId:
             m = translate(-(torsoWidth / 2 - upperLegWidth / 2), 0.0, 0.0);
@@ -484,55 +493,6 @@ function stopMotion(x, y) {
 
 window.onload = function init() {
 
-    canvas = document.getElementById("gl-canvas");
-
-    gl = WebGLUtils.setupWebGL(canvas);
-    if (!gl) { alert("WebGL isn't available"); }
-
-    gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(1.0, 1.0, 1.0, 1.0);
-
-    //
-    //  Load shaders and initialize attribute buffers
-    //
-    program = initShaders(gl, "vertex-shader", "fragment-shader");
-
-    gl.useProgram(program);
-    gl.enable(gl.DEPTH_TEST);
-    
-    instanceMatrix = mat4();
-
-    projectionMatrix = ortho(-10.0, 10.0, -10.0, 10.0, -10.0, 10.0);
-    modelViewMatrix = mat4();
-
-    upperLeg = createBodyPart(upperLegHeight, upperLegWidth);
-    middleLeg = createBodyPart(middleLegHeight, middleLegWidth);
-    lowerLeg = createBodyPart(lowerLegHeight, lowerLegWidth);
-
-
-    gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelViewMatrix"), false, flatten(modelViewMatrix));
-    gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
-
-    modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix")
-
-    cube();
-
-    vBuffer = gl.createBuffer();
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW);
-
-    var vPosition = gl.getAttribLocation(program, "vPosition");
-    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vPosition);
-
-    var colorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(colorsArray), gl.STATIC_DRAW);
-
-    var colorLocation = gl.getAttribLocation(program, "vColor");
-    gl.vertexAttribPointer(colorLocation, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(colorLocation);
 
     const sliderIds = ["torsoId", "cornerFrontLeftUpperLegId", "cornerFrontLeftMiddleLegId",
         "cornerFrontLeftLowerLegId", "cornerFrontRightUpperLegId", "cornerFrontRightMiddleLegId",
@@ -631,22 +591,262 @@ window.onload = function init() {
         },
     }
 
+    let normalizedSliderValue = (value, id) => {
+        if (sliderOptions[id] && sliderOptions[id].offsetAngle) {
+            value = value + sliderOptions[id].offsetAngle;
+        }
+        if (sliderOptions[id] && sliderOptions[id].notReversed) {
+            value = value;
+        } else {
+            value = -value;
+        }
+        return value;
+    }
+
+    let sliderValues = Array(sliderIds.length).fill(0).map(Number);
+    currentKeyframe = 0;
+
+    // write updateSliders function
+    let updateSliders = () => {
+        // deep copy keyframes[currentKeyframe].theta
+        console.log("update sliders");
+        console.log(keyframeLayers);
+        console.log(keyframes);
+        console.log(currentKeyframe);
+        const deep_copy_theta = deepCopy(keyframes[currentKeyframe].theta);
+        theta = deepCopy(deep_copy_theta);
+
+        // If head becomes functional, rewrite this one
+        sliderIds.forEach((id, index) => {
+            const slider = document.getElementById(id).getElementsByClassName("slide")[0];
+            const newValue = parseInt(keyframes[currentKeyframe].sliderValues[index]);
+            if (slider.value != newValue) {
+                console.log("slider value: ", slider.value);
+                slider.value = newValue;
+                sliderValues[index] = parseInt(slider.value);
+                initNodes(sliderVariables[id]);
+            }
+
+            /*
+            // trigger on change
+            // Create a new 'change' event
+            var event = new Event('change');
+
+            // Dispatch the 'change' event on the slider
+            slider.dispatchEvent(event);
+            */
+        });
+        sliderValues.map((value, index) => {
+            console.log("value", value);
+        });
+    }
+
+    document.getElementById("click-listener").addEventListener("click", () => {
+        console.log("inside click listener");
+        console.log(pointTimePositions);
+        console.log("operations: ", operations);
+        console.log("previousOperations: ", previousOperations);
+
+        const copyOperations = deepCopy(operations);
+
+        // need to use the operations that in operations array but not in previousOperations (only traverse previosuOperations.length < operations.length)
+        copyOperations.splice(previousOperations.length, copyOperations.length).forEach(operation => {
+            console.log(operation);
+            // if last operation is move
+            if (operation.type === "move") {
+                // update the keyframe
+                /*
+                if (currentKeyframe == operation.id){
+                    keyframes[currentKeyframe].pointTime = operation.position;
+                }
+                */
+
+            } else if (operation.type === "delete") {
+                /*
+                // delete the keyframe
+                const index = keyframes.findIndex(keyframe => keyframe.id === operation.id);
+                if (index !== -1) {
+                    keyframes.splice(index, 1);
+                }
+                */
+            } else if (operation.type === "create") {
+                // create the keyframe
+                keyframes.push({ id: operation.id, pointTime: operation.position, theta: deepCopy(theta), sliderValues: deepCopy(sliderValues) });
+                console.log("keyframes", keyframes);
+                console.log(keyframeContainers[currentKeyframeContainer]);
+                keyframeContainers[currentKeyframeContainer].pointTimePositions = deepCopy(pointTimePositions);
+                if (keyframeContainers[currentKeyframeContainer].ids.indexOf(operation.id) === -1) {
+                    keyframeContainers[currentKeyframeContainer].ids.push(operation.id);
+                }
+                if(keyframeContainers[currentKeyframeContainer].positions.indexOf(operation.position) === -1){
+                    keyframeContainers[currentKeyframeContainer].positions.push(operation.position);
+                }
+
+                currentKeyframe = operation.id;
+                console.log("pointTimePositions", pointTimePositions);
+            } else if (operation.type === "select") {
+                // save the current theta
+                keyframes[currentKeyframe].theta = deepCopy(theta);
+
+                // save the current slider values
+                keyframes[currentKeyframe].sliderValues = deepCopy(sliderValues);
+
+                console.log(keyframes[currentKeyframe]);
+                // select the keyframe
+                // cast to int
+                currentKeyframe = parseInt(operation.id);
+                console.log("changed to", keyframes[currentKeyframe]);
+                console.log(currentKeyframe);
+                // update the theta
+                theta = deepCopy(keyframes[currentKeyframe].theta);
+                // update the sliders
+                updateSliders();
+            } else if (operation.type === "layer-change-before") {
+                keyframes[currentKeyframe].theta = deepCopy(theta);
+                keyframes[currentKeyframe].sliderValues = deepCopy(sliderValues);
+
+                if (currentKeyframeContainer < keyframeLayers.length) {
+                    keyframeLayers[currentKeyframeContainer] = deepCopy(keyframes);
+                } else {
+                    keyframeLayers.push(deepCopy(keyframes));
+                }
+                keyframes = [];
+                currentKeyframe = 0;
+                sliderValues = Array(sliderIds.length).fill(0).map(Number);
+                theta = deepCopy(defaultTheta);
+                console.log(keyframeLayers);
+            } else if (operation.type === "layer-change-after") {
+                console.log(keyframes);
+                console.log("layer-change-after");
+                console.log(currentKeyframeContainer);
+                console.log(keyframeLayers);
+                if (currentKeyframeContainer < keyframeLayers.length) {
+                    console.log("Insideeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+                    console.log(keyframeLayers[currentKeyframeContainer][0]);
+                    keyframes = deepCopy(keyframeLayers[currentKeyframeContainer]);
+                    currentKeyframe = 0;
+                    theta = deepCopy(keyframes[currentKeyframe].theta);
+                    updateSliders();
+                } else {
+                    console.log("Outsideeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+                    currentKeyframe = 0;
+                    if (keyframes.length === 0) {
+                        keyframes = [{ id: 0, pointTime: 0, theta: deepCopy(theta), sliderValues: deepCopy(sliderValues) }];
+                    }
+                    keyframeLayers.push(deepCopy(keyframes));
+                    updateSliders();
+                }
+                console.log(keyframes);
+                console.log(sliderValues);
+            } else if (operation.type === "save") {
+                console.log("save");
+                console.log(theta);
+                console.log(sliderValues);
+                console.log(keyframes);
+                console.log(currentKeyframe);
+                console.log(pointTimePositions);
+
+                // save the current theta
+                keyframes[currentKeyframe].theta = deepCopy(theta);
+
+                // save the current slider values
+                keyframes[currentKeyframe].sliderValues = deepCopy(sliderValues);
+
+                keyframeLayers[currentKeyframeContainer] = deepCopy(keyframes);
+            } else if (operation.type === "play") {
+
+                currentKeyframe = parseInt(operation.id);
+                console.log("changed to", keyframes[currentKeyframe]);
+                console.log(currentKeyframe);
+                // update the theta
+                theta = deepCopy(keyframes[currentKeyframe].theta);
+            }
+
+        });
+
+        previousOperations = deepCopy(operations);
+        console.log("operations processedddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", operations);
+        console.log("previousOperations changed toooooooooooooooooooooooooooooooooooooooooooooooooooooooo", previousOperations);
+    });
+
+
+    canvas = document.getElementById("gl-canvas");
+
+    gl = WebGLUtils.setupWebGL(canvas);
+    if (!gl) { alert("WebGL isn't available"); }
+
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.clearColor(1.0, 1.0, 1.0, 1.0);
+
+    //
+    //  Load shaders and initialize attribute buffers
+    //
+    program = initShaders(gl, "vertex-shader", "fragment-shader");
+
+    gl.useProgram(program);
+    gl.enable(gl.DEPTH_TEST);
+
+    instanceMatrix = mat4();
+
+    projectionMatrix = ortho(-10.0, 10.0, -10.0, 10.0, -10.0, 10.0);
+    modelViewMatrix = mat4();
+
+    upperLeg = createBodyPart(upperLegHeight, upperLegWidth);
+    middleLeg = createBodyPart(middleLegHeight, middleLegWidth);
+    lowerLeg = createBodyPart(lowerLegHeight, lowerLegWidth);
+
+
+    gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelViewMatrix"), false, flatten(modelViewMatrix));
+    gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
+
+    modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix")
+
+    cube();
+
+    vBuffer = gl.createBuffer();
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW);
+
+    var vPosition = gl.getAttribLocation(program, "vPosition");
+    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vPosition);
+
+    var colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(colorsArray), gl.STATIC_DRAW);
+
+    var colorLocation = gl.getAttribLocation(program, "vColor");
+    gl.vertexAttribPointer(colorLocation, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(colorLocation);
+
+
+    // function
+    let fillValues = (value, id) => {
+        sliderValues[sliderIds.indexOf(id)] = value;
+        value = normalizedSliderValue(value, id);
+        console.log(sliderVariables[id], value)
+        theta[sliderVariables[id]] = value;
+        initNodes(sliderVariables[id]);
+    }
+
     sliderIds.forEach(id => {
         document.getElementById(id).onchange = function () {
             let value = parseInt(event.srcElement.value);
-            if (sliderOptions[id] && sliderOptions[id].offsetAngle) {
-                // convert to int
-                value = value + sliderOptions[id].offsetAngle;
-            }
-            if (sliderOptions[id] && sliderOptions[id].notReversed) {
-                value = -value;
-            }
-            value = -value;
-            console.log(sliderVariables[id], value)
-            theta[sliderVariables[id]] = value;
-            initNodes(sliderVariables[id]);
+            fillValues(value, id);
         }
     });
+
+    document.getElementById("moveAllLegs").onchange = function () {
+        let value = parseInt(event.srcElement.value);
+        sliderIds.forEach(id => {
+            if (id !== "torsoId") {
+                fillValues(value, id);
+            }
+        });
+
+        updateSliders();
+    }
 
     for (i = 0; i < numNodes; i++) initNodes(i);
 
@@ -655,22 +855,35 @@ window.onload = function init() {
     rotationMatrixLoc = gl.getUniformLocation(program, "r");
     gl.uniformMatrix4fv(rotationMatrixLoc, false, flatten(rotationMatrix));
 
+    document.getElementById("play-btn").onclick = function () {
+        mode = "play";
+    }
+
+    document.getElementById("pause-btn").onclick = function () {
+        mode = "pause";
+    }
+
+    document.getElementById("stop-btn").onclick = function () {
+        mode = "stop";
+    }
+
+
     /*
     canvas.addEventListener("mousedown", function (event) {
         var x = 2 * event.clientX / canvas.width - 1;
         var y = 2 * (canvas.height - event.clientY) / canvas.height - 1;
         startMotion(x, y);
     });
-
+ 
     canvas.addEventListener("mouseup", function (event) {
         var x = 2 * event.clientX / canvas.width - 1;
         var y = 2 * (canvas.height - event.clientY) / canvas.height - 1;
         stopMotion(x, y);
     });
-
+ 
     
     canvas.addEventListener("mousemove", function (event) {
-
+ 
         var x = 2 * event.clientX / canvas.width - 1;
         var y = 2 * (canvas.height - event.clientY) / canvas.height - 1;
         mouseMotion(x, y);
@@ -680,17 +893,105 @@ window.onload = function init() {
     render();
 }
 
+let startTime = null;
 
-var render = function () {
+var render = function (timestamp) {
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    if (trackballMove) {
-        axis = normalize(axis);
-        rotationMatrix = mult(rotationMatrix, rotate(angle, axis));
-        gl.uniformMatrix4fv(rotationMatrixLoc, false, flatten(rotationMatrix));
+    
+    if (mode === "play") {
+        if (startTime === null) {
+            startTime = timestamp; // Set the start time only once
+        }
+        preparePlayingScene(timestamp);
+    } else if (mode === "pause") {
+        // disable the sliders etc.
+        traverse(torsoId);
+        requestAnimFrame(render);
+    } else if (mode === "stop") {
+        // Only works in edit mode
+        if (trackballMove) {
+            axis = normalize(axis);
+            rotationMatrix = mult(rotationMatrix, rotate(angle, axis));
+            gl.uniformMatrix4fv(rotationMatrixLoc, false, flatten(rotationMatrix));
+        }
+        traverse(torsoId);
+        requestAnimFrame(render);
+    } else if (mode === "idle") {
+        // wait for animation to finish
     }
 
+}
+
+let preparePlayingScene = (timestamp) => {
+    //keyframes = keyframes.sort((a, b) => a.pointTime - b.pointTime);
+    for (let i = 0; i < keyframes.length - 1; i++) {
+        let time_difference_in_fps = (keyframes[i + 1].pointTime - keyframes[i].pointTime) * 60;
+        theta = deepCopy(keyframes[i].theta);
+        console.log(keyframes[i].theta);
+        console.log(theta);
+        console.log(keyframes[i + 1].theta);
+
+        let difference_theta = keyframes[i + 1].theta.map((value, index) => {
+            let dif_theta_op_1 = (value - theta[index]);
+            let dif_theta_op_2 = dif_theta_op_1;
+            while (dif_theta_op_2 < 0) {
+                dif_theta_op_2 += 360;
+            }
+            if (Math.abs(dif_theta_op_1) < Math.abs(dif_theta_op_2)) {
+                return dif_theta_op_1;
+            } else {
+                return dif_theta_op_2;
+            }
+        });
+        playScene(timestamp, (keyframes[i].pointTime * 1000 + timestamp), time_difference_in_fps, difference_theta, 0);
+    }
+
+    mode = "idle";
+    startTime = null;
+}
+
+const fps = 60;
+let fps_counter = 0;
+
+let playScene = (timestamp, start_time, time_difference, difference_theta, previous_progress) => {
+    //console.log("timestamp: ", timestamp, "start_time: ", start_time, "time_difference: ", time_difference, "difference_theta: ", difference_theta);
+    fps_counter++;
+    let progress = fps_counter / time_difference;
+    let elapsed_progress = progress - previous_progress;
+    /*
+    if (progress > 1) {
+        console.log("here progress", progress);
+    }
+    console.log("progress: ", progress);
+    */
+    // Update the theta values
+    theta = theta.map((value, index) => value + difference_theta[index] * elapsed_progress);
+    for (let i = 0; i < 25; i++) {
+        initNodes(i);
+    }
     traverse(torsoId);
-    requestAnimFrame(render);
+
+    // Continue rendering if not in play mode
+    if (progress < 1) {
+        // Continue rendering if the animation is not finished
+        setTimeout(() => {
+            requestAnimationFrame(function (timestamp) {
+                playScene(timestamp, startTime, time_difference, difference_theta, progress);
+            })
+        }, 1000 / fps);
+    } else {
+        // Reset the fps counter
+        fps_counter = 0;
+
+
+        console.log("keyframes", keyframes);
+        currentKeyframe = keyframes[0].id;        
+        operations.push({ type: "play", id: currentKeyframe });
+        document.getElementById("click-listener").click();
+
+        mode = "stop";
+        document.getElementById("stop-btn").click();
+        requestAnimationFrame(render);
+    }
 }
