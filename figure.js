@@ -845,6 +845,8 @@ window.onload = function init() {
             }
         });
 
+        keyframes[currentKeyframe].theta = deepCopy(theta);
+        keyframes[currentKeyframe].sliderValues = deepCopy(sliderValues);
         updateSliders();
     }
 
