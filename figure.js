@@ -195,11 +195,19 @@ var texCoordsArray = [];
 var texture;
 
 var texCoord = [
-    vec2(0.5, 0.5),
-    vec2(1, 0.5),
-    vec2(1, 1),
-    vec2(0.5, 1)
+    vec2(0.52, 0.52),
+    vec2(0.98, 0.52),
+    vec2(1, 0.98),
+    vec2(0.52, 1)
 ];
+
+var texCoordNew = [
+    vec2(0.50, 0.50),
+    vec2(1, 0.50),
+    vec2(1, 1),
+    vec2(0.50, 1)
+];
+
 var texCoordOld = [
     vec2(0, 0),
     vec2(1, 0),
@@ -471,11 +479,15 @@ function renderRock(height, width) {
 }
 
 
-function renderBaloon(height, width) {
+function renderBaloon(height, width, position, scale=1, positionX=0) {
 
+    let y_axis = ((position % 30) - 15) * height;
 
-    instanceMatrix = mult(modelViewMatrix, translate(-10.5, 2 * -1.2 * height, 0.0));
-    instanceMatrix = mult(instanceMatrix, scale4(width, height, width));
+    let scaleAxis = 1.2 * ((30 - y_axis) / 30) * scale;
+
+    // -15 15 is the range
+    instanceMatrix = mult(modelViewMatrix, translate(-10.5 + positionX, y_axis, 0.0));
+    instanceMatrix = mult(instanceMatrix, scale4(scaleAxis * width, scaleAxis * height, scaleAxis * width));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 72; i < index; i += 3)
         gl.drawArrays(gl.TRIANGLES, i, 3)
@@ -635,9 +647,9 @@ function triangle(a, b, c) {
     pointsArray.push(b);
     pointsArray.push(c);
 
-    texCoordsArray.push(texCoord[0]);
-    texCoordsArray.push(texCoord[0]);
-    texCoordsArray.push(texCoord[0]);
+    texCoordsArray.push(texCoordNew[0]);
+    texCoordsArray.push(texCoordNew[0]);
+    texCoordsArray.push(texCoordNew[0]);
     index += 3;
 }
 
@@ -1191,7 +1203,7 @@ var render = function (timestamp) {
         // disable the sliders etc.
         traverse(torsoId);
         renderRock(5.0, 5.0);
-        renderBaloon(1,1)
+        renderBaloon(1,1, 20)
         head(20, 20);
         requestAnimFrame(render);
     } else if (mode === "stop") {
@@ -1202,7 +1214,7 @@ var render = function (timestamp) {
             gl.uniformMatrix4fv(rotationMatrixLoc, false, flatten(rotationMatrix));
         }
         renderRock(5.0, 5.0);
-        renderBaloon(1,1)
+        renderBaloon(1,1, 20)
         head(20, 20);
         traverse(torsoId);
         requestAnimFrame(render);
@@ -1212,7 +1224,7 @@ var render = function (timestamp) {
            
 
         renderRock(5.0, 5.0);
-        renderBaloon(1,1)
+        renderBaloon(1,1, 20);
         head(20, 20);
     }
 
@@ -1257,6 +1269,7 @@ let preparePlayingScene = (timestamp) => {
 
 const fps = 60;
 let fps_counter = 0;
+let item_fps_counter = 0;
 
 let playScene = (timestamp, start_time, time_difference, difference_theta, previous_progress) => {
     //console.log("timestamp: ", timestamp, "start_time: ", start_time, "time_difference: ", time_difference, "difference_theta: ", difference_theta);
@@ -1266,11 +1279,16 @@ let playScene = (timestamp, start_time, time_difference, difference_theta, previ
     gl.activeTexture(gl.TEXTURE0); // Set the active texture unit
     gl.bindTexture(gl.TEXTURE_2D, texture); // Bind the texture
     gl.uniform1i(gl.getUniformLocation(program, "texture"), 0); // Set the texture unit to 0
-    //renderRock(5.0, 5.0);
+    renderRock(5.0, 5.0);
+    head(20, 20);
+    renderBaloon(1,1, (item_fps_counter / 5) + 5, 1);
+    renderBaloon(1,1, (item_fps_counter / 5) + 10, 0.8, 5);
+    renderBaloon(1,1, (item_fps_counter / 5) + 15, 0.8, -5);
 
-
+    
 
     fps_counter++;
+    item_fps_counter++;
     let progress = fps_counter / time_difference;
     let elapsed_progress = progress - previous_progress;
     /*
