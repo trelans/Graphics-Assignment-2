@@ -200,7 +200,12 @@ var texCoord = [
     vec2(0, 1)
 ];
 
-
+var va = vec4(0.0, 0.0, -1.0, 1);
+var vb = vec4(0.0, 0.942809, 0.333333, 1);
+var vc = vec4(-0.816497, -0.471405, 0.333333, 1);
+var vd = vec4(0.816497, -0.471405, 0.333333, 1);
+var numTimesToSubdivide = 4;
+var index = 0;
 
 
 //-------------------------------------------
@@ -439,6 +444,17 @@ function createBodyPart(height, width) {
     }
 }
 
+function renderRock(height, width) {
+
+    instanceMatrix = mult(modelViewMatrix, translate(7.0, 2 * -1 * height, 0.0));
+    instanceMatrix = mult(instanceMatrix, scale4(width, height, width));
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+    for (var i = 48; i < index; i += 3)
+        gl.drawArrays(gl.TRIANGLES, i, 3)
+
+}
+
+
 
 function lowerLowerHead() {
 
@@ -563,6 +579,48 @@ function stopMotion(x, y) {
         angle = 0.0;
         trackballMove = false;
     }
+}
+
+function triangle(a, b, c) {
+    colorsArray.push(colorsWhite[0]);
+    colorsArray.push(colorsWhite[1]);
+    colorsArray.push(colorsWhite[2]);
+
+    pointsArray.push(a);
+    pointsArray.push(b);
+    pointsArray.push(c);
+
+    index += 3;
+}
+
+
+function divideTriangle(a, b, c, count) {
+    if (count > 0) {
+
+        var ab = mix(a, b, 0.5);
+        var ac = mix(a, c, 0.5);
+        var bc = mix(b, c, 0.5);
+
+        ab = normalize(ab, true);
+        ac = normalize(ac, true);
+        bc = normalize(bc, true);
+
+        divideTriangle(a, ab, ac, count - 1);
+        divideTriangle(ab, b, bc, count - 1);
+        divideTriangle(bc, c, ac, count - 1);
+        divideTriangle(ab, bc, ac, count - 1);
+    }
+    else {
+        triangle(a, b, c);
+    }
+}
+
+
+function tetrahedron(a, b, c, d, n) {
+    divideTriangle(a, b, c, n);
+    divideTriangle(d, c, b, n);
+    divideTriangle(a, d, b, n);
+    divideTriangle(a, c, d, n);
 }
 
 window.onload = function init() {
@@ -904,7 +962,7 @@ window.onload = function init() {
 
     cube(false, colorsWhite);
     cube(true, colorsAnother);
-
+    tetrahedron(va, vb, vc, vd, numTimesToSubdivide);
 
     vBuffer = gl.createBuffer();
 
@@ -1050,6 +1108,7 @@ var render = function (timestamp) {
     } else if (mode === "pause") {
         // disable the sliders etc.
         traverse(torsoId);
+        renderRock(5.0, 5.0);
         requestAnimFrame(render);
     } else if (mode === "stop") {
         // Only works in edit mode
@@ -1058,10 +1117,12 @@ var render = function (timestamp) {
             rotationMatrix = mult(rotationMatrix, rotate(angle, axis));
             gl.uniformMatrix4fv(rotationMatrixLoc, false, flatten(rotationMatrix));
         }
+        renderRock(5.0, 5.0);
         traverse(torsoId);
         requestAnimFrame(render);
     } else if (mode === "idle") {
         // wait for animation to finish
+        renderRock(5.0, 5.0);
     }
 
 }
