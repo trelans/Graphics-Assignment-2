@@ -16,6 +16,7 @@ varying vec2 texCoord; // Pass texture coordinates to the fragment shader
 
 void main() 
 {
+    //gl_Position =  r * projectionMatrix * modelViewMatrix * vPosition * vec4(0.5, 0.7, 1.0, 1.0);
     gl_Position =  r * projectionMatrix * modelViewMatrix * vPosition * vec4(0.5, 0.7, 1.0, 1.0);
     fragColor = vColor;
     texCoord = vTexCoord;
@@ -66,7 +67,7 @@ void main()
         </ul>
     </div>
     <div class="canvas">
-        <canvas id="gl-canvas" width="1024" height="710">Oops ... your browser doesn't support the HTML5 canvas
+        <canvas id="gl-canvas" width="520" height="520">Oops ... your browser doesn't support the HTML5 canvas
             element</canvas>
     </div>
     <div class="props">
@@ -78,16 +79,16 @@ void main()
                 180
             </div>
             <div id="torsoRotation2">
-                torso angle -180 <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                torso angle -180 <input class="slide" type="range" min="-10" max="10" step="1" value="0" />
                 180
             </div>
             <div id="torsoRotation3">
-                torso angle -180 <input id="slide" type="range" min="-180" max="180" step="10" value="0" />
+                torso angle -180 <input class="slide" type="range" min="-10" max="10" step="1" value="0" />
                 180
             </div>
             <div id="cornerFrontLeftUpperLegId">
                 Corner Front Left Upper Leg -180
-                <input class="slide" type="range" min="-180" max="180" step="10" value="0" />
+                <input class="slide" type="range" min="-90" max="100" step="10" value="0" />
                 180
             </div>
             <div id="cornerFrontLeftMiddleLegId">
@@ -208,25 +209,25 @@ void main()
 
             <div id="translationXSlider">
                 Translation X
-                <input id="slide" type="range" min="-10" max="10" step="1" value="0" />
+                <input class="slide" type="range" min="-10" max="10" step="1" value="0" />
                 10
             </div>
 
             <div id="translationYSlider">
                 Translation Y
-                <input id="slide" type="range" min="-10" max="10" step="1" value="0" />
+                <input class="slide" type="range" min="-10" max="10" step="1" value="0" />
                 10
             </div>
 
             <div id="translationZSlider">
                 Translation Z
-                <input id="slide" type="range" min="-10" max="10" step="1" value="0" />
+                <input class="slide" type="range" min="-10" max="10" step="1" value="0" />
                 10
             </div>
 
             <div id="moveAllLegs">
                 Move all legs
-                <input class="slide" type="range" min="-180" max="180" step="10" value="0" />
+                <input class="slide" type="range" min="-10" max="80" step="5" value="0" />
             </div>
         </div>
     </div>

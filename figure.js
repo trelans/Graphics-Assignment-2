@@ -138,13 +138,13 @@ let torsoNewRotateAngel2 = 29;
 var torsoHeight = 5.0;
 var torsoWidth = 5.0;
 
-var upperLegWidth = 0.5;
-var middleLegWidth = 0.4;
-var lowerLegWidth = 0.3;
+var upperLegWidth = 0.8;
+var middleLegWidth = 0.6;
+var lowerLegWidth = 0.4;
 
-var upperLegHeight = 3.0;
-var middleLegHeight = 2.0;
-var lowerLegHeight = 1.0;
+var upperLegHeight = 5.0;
+var middleLegHeight = 3.0;
+var lowerLegHeight = 2.0;
 
 var headHeight = 1.5;
 var headWidth = 1.0;
@@ -412,8 +412,8 @@ function traverse(Id) {
 
 function torso() {
 
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * torsoHeight, 0.0));
-    instanceMatrix = mult(instanceMatrix, scale4(torsoWidth, torsoHeight, torsoWidth));
+    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.4 * torsoHeight, 0.0));
+    instanceMatrix = mult(instanceMatrix, scale4(1.1 * torsoWidth, torsoHeight, 1.2* torsoWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 6; i < 12; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
@@ -435,10 +435,10 @@ function lowerHead() {
 }
 
 // Make one function which takes params to create below functions belows are too much duplicated
-function createBodyPart(height, width) {
+function createBodyPart(height, width, scale) {
     return function () {
         instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * height, 0.0));
-        instanceMatrix = mult(instanceMatrix, scale4(width, height, width));
+        instanceMatrix = mult(instanceMatrix, scale4( width, scale * height, width));
         gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
         for (let i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
     }
@@ -783,7 +783,11 @@ window.onload = function init() {
                 console.log("slider value: ", slider.value);
                 slider.value = newValue;
                 sliderValues[index] = parseInt(slider.value);
-                initNodes(sliderVariables[id]);
+                if (sliderVariables[id] >= 25 && sliderVariables[id] <= 29) {
+                    initNodes(torsoId);
+                } else {
+                    initNodes(sliderVariables[id]);
+                }
             }
 
             /*
@@ -815,9 +819,11 @@ window.onload = function init() {
             if (operation.type === "move") {
                 // update the keyframe
 
+                /*
                 if (currentKeyframe == operation.id) {
                     keyframes[currentKeyframe].pointTime = operation.position;
                 }
+                */
 
 
             } else if (operation.type === "delete") {
@@ -857,6 +863,7 @@ window.onload = function init() {
                 console.log("changed to", keyframes[currentKeyframe]);
                 console.log(currentKeyframe);
                 // update the theta
+                console.log(keyframes[currentKeyframe].theta);
                 theta = deepCopy(keyframes[currentKeyframe].theta);
                 // update the sliders
                 updateSliders();
@@ -947,12 +954,12 @@ window.onload = function init() {
 
     instanceMatrix = mat4();
 
-    projectionMatrix = ortho(-10.0, 10.0, -10.0, 10.0, -10.0, 10.0);
+    projectionMatrix = ortho(-10.0, 10.0, -10.0, 10.0, -30.0, 30.0);
     modelViewMatrix = mat4();
 
-    upperLeg = createBodyPart(upperLegHeight, upperLegWidth);
-    middleLeg = createBodyPart(middleLegHeight, middleLegWidth);
-    lowerLeg = createBodyPart(lowerLegHeight, lowerLegWidth);
+    upperLeg = createBodyPart(upperLegHeight, upperLegWidth, 1.1);
+    middleLeg = createBodyPart(middleLegHeight, middleLegWidth, 1.1);
+    lowerLeg = createBodyPart(lowerLegHeight, lowerLegWidth, 1);
 
 
     gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelViewMatrix"), false, flatten(modelViewMatrix));
@@ -1014,9 +1021,15 @@ window.onload = function init() {
     let fillValues = (value, id) => {
         sliderValues[sliderIds.indexOf(id)] = value;
         value = normalizedSliderValue(value, id);
-        console.log(sliderVariables[id], value)
+        console.log(sliderVariables[id], value);
+        console.log("id: ", id);
+        console.log(theta[sliderVariables[id]]);
         theta[sliderVariables[id]] = value;
-        initNodes(sliderVariables[id]);
+        if (sliderVariables[id] >= 25 && sliderVariables[id] <= 29) {
+            initNodes(torsoId);
+        } else {
+            initNodes(sliderVariables[id]);
+        }
     }
 
     sliderIds.forEach(id => {
@@ -1032,15 +1045,14 @@ window.onload = function init() {
             if (id !== "torsoId" && id !== "translationXSlider" && id !== "translationYSlider" && id !== "translationZSlider" && id !== "torsoRotation2" && id !== "torsoRotation3") {
                 fillValues(value, id);
             }
-
-            if (sliderVariables[id] == 27 || sliderVariables[id] == 28 || sliderVariables[id] == 29 || sliderVariables[id] == 30 || sliderVariables[id] == 31) {
-                console.log("here")
-                initNodes(torsoId);
-            }
         });
 
-        keyframes[currentKeyframe].theta = deepCopy(theta);
-        keyframes[currentKeyframe].sliderValues = deepCopy(sliderValues);
+        if (currentKeyframe < keyframes.length) {
+            keyframes[currentKeyframe].theta = deepCopy(theta);
+            keyframes[currentKeyframe].sliderValues = deepCopy(sliderValues);
+        } else {
+            keyframes.push({ id: currentKeyframe, pointTime: 0, theta: deepCopy(theta), sliderValues: deepCopy(sliderValues) });
+        }
         updateSliders();
     }
 
@@ -1065,6 +1077,7 @@ window.onload = function init() {
 
 
     /*
+    
     canvas.addEventListener("mousedown", function (event) {
         var x = 2 * event.clientX / canvas.width - 1;
         var y = 2 * (canvas.height - event.clientY) / canvas.height - 1;
@@ -1084,7 +1097,9 @@ window.onload = function init() {
         var y = 2 * (canvas.height - event.clientY) / canvas.height - 1;
         mouseMotion(x, y);
     });
+
     */
+
 
     render();
 }
@@ -1104,11 +1119,12 @@ var render = function (timestamp) {
         if (startTime === null) {
             startTime = timestamp; // Set the start time only once
         }
+        currentKeyframe = 0;
         preparePlayingScene(timestamp);
     } else if (mode === "pause") {
         // disable the sliders etc.
         traverse(torsoId);
-        renderRock(5.0, 5.0);
+        //renderRock(5.0, 5.0);
         requestAnimFrame(render);
     } else if (mode === "stop") {
         // Only works in edit mode
@@ -1117,42 +1133,51 @@ var render = function (timestamp) {
             rotationMatrix = mult(rotationMatrix, rotate(angle, axis));
             gl.uniformMatrix4fv(rotationMatrixLoc, false, flatten(rotationMatrix));
         }
-        renderRock(5.0, 5.0);
+        //renderRock(5.0, 5.0);
         traverse(torsoId);
         requestAnimFrame(render);
     } else if (mode === "idle") {
         // wait for animation to finish
-        renderRock(5.0, 5.0);
+        //renderRock(5.0, 5.0);
     }
 
 }
 
 let preparePlayingScene = (timestamp) => {
     //keyframes = keyframes.sort((a, b) => a.pointTime - b.pointTime);
-    for (let i = 0; i < keyframes.length - 1; i++) {
-        let time_difference_in_fps = (keyframes[i + 1].pointTime - keyframes[i].pointTime) * 60;
-        theta = deepCopy(keyframes[i].theta);
-        console.log(keyframes[i].theta);
-        console.log(theta);
-        console.log(keyframes[i + 1].theta);
+    if (currentKeyframe + 1 == keyframes.length) {
+        startTime = null;
+        currentKeyframe = keyframes[0].id;
+        operations.push({ type: "play", id: currentKeyframe });
+        console.log("finish");
+        console.log("keyframes", keyframes);
+        document.getElementById("click-listener").click();
 
-        let difference_theta = keyframes[i + 1].theta.map((value, index) => {
-            let dif_theta_op_1 = (value - theta[index]);
-            let dif_theta_op_2 = dif_theta_op_1;
-            while (dif_theta_op_2 < 0) {
-                dif_theta_op_2 += 360;
-            }
-            if (Math.abs(dif_theta_op_1) < Math.abs(dif_theta_op_2)) {
-                return dif_theta_op_1;
-            } else {
-                return dif_theta_op_2;
-            }
-        });
-        playScene(timestamp, (keyframes[i].pointTime * 1000 + timestamp), time_difference_in_fps, difference_theta, 0);
+        mode = "stop";
+        document.getElementById("stop-btn").click();
+        requestAnimationFrame(render);
+        return;
     }
 
-    mode = "idle";
-    startTime = null;
+    let time_difference_in_fps = (keyframes[currentKeyframe + 1].pointTime - keyframes[currentKeyframe].pointTime) * 60;
+    theta = deepCopy(keyframes[currentKeyframe].theta);
+    console.log(keyframes[currentKeyframe].theta);
+    console.log(theta);
+    console.log(keyframes[currentKeyframe + 1].theta);
+
+    let difference_theta = keyframes[currentKeyframe + 1].theta.map((value, index) => {
+        let dif_theta_op_1 = (value - theta[index]);
+        let dif_theta_op_2 = dif_theta_op_1;
+        while (dif_theta_op_2 < 0) {
+            dif_theta_op_2 += 360;
+        }
+        if (Math.abs(dif_theta_op_1) < Math.abs(dif_theta_op_2)) {
+            return dif_theta_op_1;
+        } else {
+            return dif_theta_op_2;
+        }
+    });
+    playScene(timestamp, (keyframes[currentKeyframe].pointTime * 1000 + timestamp), time_difference_in_fps, difference_theta, 0);
 }
 
 const fps = 60;
@@ -1160,6 +1185,16 @@ let fps_counter = 0;
 
 let playScene = (timestamp, start_time, time_difference, difference_theta, previous_progress) => {
     //console.log("timestamp: ", timestamp, "start_time: ", start_time, "time_difference: ", time_difference, "difference_theta: ", difference_theta);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    // Configure texture
+    gl.activeTexture(gl.TEXTURE0); // Set the active texture unit
+    gl.bindTexture(gl.TEXTURE_2D, texture); // Bind the texture
+    gl.uniform1i(gl.getUniformLocation(program, "texture"), 0); // Set the texture unit to 0
+    //renderRock(5.0, 5.0);
+
+
+
     fps_counter++;
     let progress = fps_counter / time_difference;
     let elapsed_progress = progress - previous_progress;
@@ -1171,6 +1206,10 @@ let playScene = (timestamp, start_time, time_difference, difference_theta, previ
     */
     // Update the theta values
     theta = theta.map((value, index) => value + difference_theta[index] * elapsed_progress);
+
+    console.log(difference_theta);
+
+
     for (let i = 0; i < 25; i++) {
         initNodes(i);
     }
@@ -1187,15 +1226,7 @@ let playScene = (timestamp, start_time, time_difference, difference_theta, previ
     } else {
         // Reset the fps counter
         fps_counter = 0;
-
-
-        console.log("keyframes", keyframes);
-        currentKeyframe = keyframes[0].id;
-        operations.push({ type: "play", id: currentKeyframe });
-        document.getElementById("click-listener").click();
-
-        mode = "stop";
-        document.getElementById("stop-btn").click();
-        requestAnimationFrame(render);
+        currentKeyframe++;
+        preparePlayingScene(timestamp);
     }
 }
