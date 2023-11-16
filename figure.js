@@ -193,7 +193,6 @@ var startX, startY;
 var texCoordsArray = [];
 
 var texture;
-var textureBackground;
 
 var texCoord = [
     vec2(0.5, 0.5),
@@ -640,39 +639,6 @@ function triangle(a, b, c) {
     texCoordsArray.push(texCoord[0]);
     texCoordsArray.push(texCoord[0]);
     index += 3;
-}
-
-function renderPlane() {
-    // Define the vertices of a plane
-    const vertices = [
-        vec4(-1.0, -1.0, 0.0, 1.0),
-        vec4(1.0, -1.0, 0.0, 1.0),
-        vec4(1.0, 1.0, 0.0, 1.0),
-        vec4(-1.0, 1.0, 0.0, 1.0),
-    ];
-
-    // Define the colors for each vertex
-    const colors = [
-        vec4(1.0, 0.0, 0.0, 1.0), // Red
-        vec4(0.0, 1.0, 0.0, 1.0), // Green
-        vec4(0.0, 0.0, 1.0, 1.0), // Blue
-        vec4(1.0, 1.0, 0.0, 1.0), // Yellow
-    ];
-
-    // Define the texture coordinates for each vertex
-    const texCoords = [
-        vec2(0.0, 0.0),
-        vec2(1.0, 0.0),
-        vec2(1.0, 1.0),
-        vec2(0.0, 1.0),
-    ];
-
-    // Push the data into the respective arrays
-    for (let i = 0; i < vertices.length; i++) {
-        pointsArray.push(vertices[i]);
-        colorsArray.push(colors[i]);
-        texCoordsArray.push(texCoords[i]);
-    }
 }
 
 
