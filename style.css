@@ -134,7 +134,7 @@ body {
     left: 0;
     width: 1300;
     height: 710;
-    background: url('background.png') no-repeat right top fixed ;
+    background: url('background2.png') no-repeat left top fixed ;
     background-size: contain; /* Use 'contain' instead of 'cover' */
     z-index: -1; /* Send it to the back */
 }

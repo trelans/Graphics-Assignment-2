@@ -453,10 +453,12 @@ function torso() {
     for (var i = 6; i < 12; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
-function head() {
+function head(x , y, frameRate) {
 
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * headHeight, -20.0));
-    instanceMatrix = mult(instanceMatrix, scale4(40 * headWidth, 30 * headHeight, headWidth));
+    let oteleme = 1 * Math.sin(frameRate * 0.1) * 0.3;
+
+    instanceMatrix = mult(modelViewMatrix, translate(-10 + x + oteleme, -8 * headHeight + y, -20.0));
+    instanceMatrix = mult(instanceMatrix, scale4(1 * headWidth, 10 * headHeight, headWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 12; i < 18; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
@@ -1261,7 +1263,7 @@ window.onload = function init() {
 
 
     // Get the actual width and height of the background image
-    var backgroundImageWidth = 
+    var backgroundImageWidth = backgroundElement.width; 
     var backgroundImageHeight = backgroundElement.height; // Set the actual height of your background image
 
 
@@ -1290,10 +1292,10 @@ window.onload = function init() {
         console.log(backgroundImageWidth);
         console.log(newX);
         console.log(newY);
-        if (newX > backgroundImageWidth) newX = backgroundImageWidth;
-        if (newX < -backgroundImageWidth) newX = -backgroundImageWidth;
-        if (newY > backgroundImageHeight) newY = backgroundImageHeight;
-        if (newY < -backgroundImageHeight) newY = -backgroundImageHeight;
+        if (newX > 130) newX = 130;
+        if (newX < 0) newX = 0;
+        if (newY > 0) newY = 0;
+        if (newY < -100) newY = -100;
 
 
         // Set the new background position
@@ -1412,6 +1414,10 @@ var render = function (timestamp) {
         renderBaloon(1, 1, 20);
     }
 
+    head(-4 , 2, 1);
+    head(-6 , 1, 1);
+    head(-8 , 3, 1);
+    head(-2 , 0, 1);
 }
 
 let preparePlayingScene = (timestamp) => {
@@ -1468,6 +1474,10 @@ let playScene = (timestamp, start_time, time_difference, difference_theta, previ
     renderBaloon(1, 1, (item_fps_counter / 5) + 5, 1);
     renderBaloon(1, 1, (item_fps_counter / 5) + 10, 0.8, 5);
     renderBaloon(1, 1, (item_fps_counter / 5) + 15, 0.8, -5);
+    head(-4 , 2, item_fps_counter);
+    head(-6 , 1, item_fps_counter);
+    head(-8 , 3, item_fps_counter);
+    head(-2 , 0, item_fps_counter);
 
 
 
