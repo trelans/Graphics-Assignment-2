@@ -3,22 +3,30 @@ body {
     padding: 0;
     display: grid;
     grid-template-rows: 1fr auto auto;
-    grid-template-columns: 4fr 3fr 8fr;
+    grid-template-columns: 2fr auto 4fr;
     height: 100vh;
     position: relative;
     background: #000;
-    overflow-y: hidden;
+    font-size: 14px;
 }
 
 .props {
-    font-size: 14px;
+    font-size: 16px;
     display: flex;
     flex-direction: row;
-    justify-content: flex-end;
+    justify-content: center;
     align-items: center;
-    padding-right: 16px;
     background-color: #eee;
     border-left: 1px solid #000;
+    max-height: 90vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.slide {
+    margin-top: 0;
+    margin-bottom: 0;
+    height: 14px;
 }
 
 #shortcut-list {
@@ -30,7 +38,8 @@ body {
     grid-row: 3;
     grid-column: span 3;
     position: absolute;
-    bottom: 0; 
+    bottom: 5px; 
+    left: 0;
 }
 
 #timeline-container {
@@ -101,6 +110,7 @@ body {
 #keyframes {
     border-right: 1px solid #000;
     background-color: #ddd;
+    max-height: 90vh;
 }
 
 .keyframe-btns {
