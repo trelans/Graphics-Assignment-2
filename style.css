@@ -3,13 +3,15 @@ body {
     padding: 0;
     display: grid;
     grid-template-rows: 1fr auto auto;
-    grid-template-columns: 1fr 4fr 2fr;
+    grid-template-columns: 4fr 3fr 8fr;
     height: 100vh;
     position: relative;
+    background: #000;
+    overflow-y: hidden;
 }
 
 .props {
-    font-size: 16px;
+    font-size: 14px;
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
@@ -124,4 +126,15 @@ body {
 .keyframe-item.selected {
     background-color: black;
     color: white;
+}
+
+#background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 1300;
+    height: 710;
+    background: url('background.png') no-repeat right top fixed ;
+    background-size: contain; /* Use 'contain' instead of 'cover' */
+    z-index: -1; /* Send it to the back */
 }

@@ -9,6 +9,17 @@ var instanceMatrix;
 
 var modelViewMatrixLoc;
 
+// Variables to store camera parameters
+var cameraAngleX = 0;
+var cameraAngleY = 0;
+
+var vertical;
+var horizontal;
+var isDragging = false;
+var lastMouseX, lastMouseY;
+var azimuth = 0.0;  // Azimuth angle around the y-axis
+var elevation = 0.0;  // Elevation angle above the x-z plane
+
 var vertices = [
 
     vec4(-0.5, -0.5, 0.5, 1.0),
@@ -261,7 +272,10 @@ function initNodes(Id) {
 
         case torsoId:
 
-            m = rotate(theta[torsoId], theta[torsoNewRotateAngel], 1, theta[torsoNewRotateAngel2]);
+            //m = rotate(theta[torsoId], theta[torsoNewRotateAngel], 1, theta[torsoNewRotateAngel2]);
+            m = rotate(theta[torsoId], 0, 1, 0);
+            m = mult(m, rotate(theta[torsoNewRotateAngel], 1, 0, 0));
+            m = mult(m, rotate(theta[torsoNewRotateAngel2], 0, 0, 1));
             m = mult(m, translate(theta[movementIdX], theta[movementIdY], theta[movementIdZ]));
             figure[torsoId] = createNode(m, torso, null, cornerFrontLeftUpperId);
             break;
@@ -434,7 +448,7 @@ function traverse(Id) {
 function torso() {
 
     instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.4 * torsoHeight, 0.0));
-    instanceMatrix = mult(instanceMatrix, scale4(1.1 * torsoWidth, torsoHeight, 1.2* torsoWidth));
+    instanceMatrix = mult(instanceMatrix, scale4(1.1 * torsoWidth, torsoHeight, 1.2 * torsoWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 6; i < 12; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
@@ -442,7 +456,7 @@ function torso() {
 function head() {
 
     instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * headHeight, -20.0));
-    instanceMatrix = mult(instanceMatrix, scale4(40*headWidth, 30*headHeight, headWidth));
+    instanceMatrix = mult(instanceMatrix, scale4(40 * headWidth, 30 * headHeight, headWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 12; i < 18; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
@@ -461,7 +475,7 @@ function lowerHead() {
 function createBodyPart(height, width, scale) {
     return function () {
         instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * height, 0.0));
-        instanceMatrix = mult(instanceMatrix, scale4( width, scale * height, width));
+        instanceMatrix = mult(instanceMatrix, scale4(width, scale * height, width));
         gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
         for (let i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
     }
@@ -479,7 +493,7 @@ function renderRock(height, width) {
 }
 
 
-function renderBaloon(height, width, position, scale=1, positionX=0) {
+function renderBaloon(height, width, position, scale = 1, positionX = 0) {
 
     let y_axis = ((position % 30) - 15) * height;
 
@@ -515,9 +529,9 @@ function quad(a, b, c, d, isFront, pos, color, isBg) {
     colorsArray.push(color[pos]);
     if (isFront) {
         texCoordsArray.push(texCoord[0]);
-    } 
-    else if(isBg) {
-        texCoordsArray.push(texCoordBackground[0]);   
+    }
+    else if (isBg) {
+        texCoordsArray.push(texCoordBackground[0]);
     }
     else {
         texCoordsArray.push(texCoord[1]);
@@ -528,9 +542,9 @@ function quad(a, b, c, d, isFront, pos, color, isBg) {
     if (isFront) {
         texCoordsArray.push(texCoord[1]);
     }
-    else if(isBg) {
-        texCoordsArray.push(texCoordBackground[1]);   
-    } 
+    else if (isBg) {
+        texCoordsArray.push(texCoordBackground[1]);
+    }
     else {
         texCoordsArray.push(texCoord[0]);
     }
@@ -540,9 +554,9 @@ function quad(a, b, c, d, isFront, pos, color, isBg) {
     if (isFront) {
         texCoordsArray.push(texCoord[2]);
     }
-    else if(isBg) {
-        texCoordsArray.push(texCoordBackground[2]);   
-    } 
+    else if (isBg) {
+        texCoordsArray.push(texCoordBackground[2]);
+    }
     else {
         texCoordsArray.push(texCoord[0]);
     }
@@ -552,17 +566,17 @@ function quad(a, b, c, d, isFront, pos, color, isBg) {
     if (isFront) {
         texCoordsArray.push(texCoord[3]);
     }
-    else if(isBg) {
-        texCoordsArray.push(texCoordBackground[3]);  
-        console.log("HERE!!") 
-    } 
+    else if (isBg) {
+        texCoordsArray.push(texCoordBackground[3]);
+        console.log("HERE!!")
+    }
     else {
         texCoordsArray.push(texCoord[0]);
     }
 }
 
 
-function cube(isHead, color , isBg) {
+function cube(isHead, color, isBg) {
     quad(1, 0, 3, 2, isHead, 0, color, isBg);
     quad(2, 3, 7, 6, false, 1, color, isBg);
     quad(3, 0, 4, 7, false, 2, color, isBg);
@@ -612,9 +626,11 @@ function mouseMotion(x, y) {
             lastPos[0] = curPos[0];
             lastPos[1] = curPos[1];
             lastPos[2] = curPos[2];
+
+
+
         }
     }
-    render();
 }
 
 function startMotion(x, y) {
@@ -1027,8 +1043,8 @@ window.onload = function init() {
 
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix")
 
-    cube(false, colorsWhite,false);
-    cube(true, colorsWhite,false);
+    cube(false, colorsWhite, false);
+    cube(true, colorsWhite, false);
     console.log(pointsArray)
     cube(false, colorsWhite, true);
     console.log(pointsArray)
@@ -1096,7 +1112,18 @@ window.onload = function init() {
     });
 
     // function
-    let fillValues = (value, id) => {
+    let fillValues = (value, id, option = null) => {
+        if (option) {
+            if (option === "middle") {
+                if (!id.includes("Middle")) {
+                    return;
+                }
+            } else if (option === "lower") {
+                if (!id.includes("Lower")) {
+                    return;
+                }
+            }
+        }
         sliderValues[sliderIds.indexOf(id)] = value;
         value = normalizedSliderValue(value, id);
         console.log(sliderVariables[id], value);
@@ -1109,7 +1136,7 @@ window.onload = function init() {
             initNodes(sliderVariables[id]);
         }
     }
-    
+
     sliderIds.forEach(id => {
         document.getElementById(id).onchange = function () {
             let value = parseInt(event.srcElement.value);
@@ -1122,6 +1149,40 @@ window.onload = function init() {
         sliderIds.forEach(id => {
             if (id !== "torsoId" && id !== "translationXSlider" && id !== "translationYSlider" && id !== "translationZSlider" && id !== "torsoRotation2" && id !== "torsoRotation3") {
                 fillValues(value, id);
+            }
+        });
+
+        if (currentKeyframe < keyframes.length) {
+            keyframes[currentKeyframe].theta = deepCopy(theta);
+            keyframes[currentKeyframe].sliderValues = deepCopy(sliderValues);
+        } else {
+            keyframes.push({ id: currentKeyframe, pointTime: 0, theta: deepCopy(theta), sliderValues: deepCopy(sliderValues) });
+        }
+        updateSliders();
+    }
+
+    document.getElementById("moveMiddleLegs").onchange = function () {
+        let value = parseInt(event.srcElement.value);
+        sliderIds.forEach(id => {
+            if (id !== "torsoId" && id !== "translationXSlider" && id !== "translationYSlider" && id !== "translationZSlider" && id !== "torsoRotation2" && id !== "torsoRotation3") {
+                fillValues(value, id, "middle");
+            }
+        });
+
+        if (currentKeyframe < keyframes.length) {
+            keyframes[currentKeyframe].theta = deepCopy(theta);
+            keyframes[currentKeyframe].sliderValues = deepCopy(sliderValues);
+        } else {
+            keyframes.push({ id: currentKeyframe, pointTime: 0, theta: deepCopy(theta), sliderValues: deepCopy(sliderValues) });
+        }
+        updateSliders();
+    }
+
+    document.getElementById("moveLowerLegs").onchange = function () {
+        let value = parseInt(event.srcElement.value);
+        sliderIds.forEach(id => {
+            if (id !== "torsoId" && id !== "translationXSlider" && id !== "translationYSlider" && id !== "translationZSlider" && id !== "torsoRotation2" && id !== "torsoRotation3") {
+                fillValues(value, id, "lower");
             }
         });
 
@@ -1154,39 +1215,165 @@ window.onload = function init() {
     }
 
 
-    /*
-    
+    vertical = 0;
+    horizontal = 0;
+
+    document.addEventListener("keydown", function (event) {
+        // Your existing key event handling code
+        if (event.key === "ArrowUp" && event.shiftKey) {
+            // Move the "at" point up
+            vertical += 0.1; // Adjust the increment based on your preference
+        } else if (event.key === "ArrowDown" && event.shiftKey) {
+            // Move the "at" point down
+            vertical -= 0.1; // Adjust the increment based on your preference
+        } else if (event.key === "ArrowLeft" && event.shiftKey) {
+            // Move the "at" point left
+            horizontal -= 0.1; // Adjust the increment based on your preference
+        } else if (event.key === "ArrowRight" && event.shiftKey) {
+            // Move the "at" point right
+            horizontal += 0.1; // Adjust the increment based on your preference
+        }
+
+        // Update the view matrix based on new camera angles
+        setUpViewMatrix();
+    });
+
     canvas.addEventListener("mousedown", function (event) {
-        var x = 2 * event.clientX / canvas.width - 1;
-        var y = 2 * (canvas.height - event.clientY) / canvas.height - 1;
-        startMotion(x, y);
+        isDragging = true;
+        lastMouseX = event.clientX;
+        lastMouseY = event.clientY;
     });
- 
+
     canvas.addEventListener("mouseup", function (event) {
-        var x = 2 * event.clientX / canvas.width - 1;
-        var y = 2 * (canvas.height - event.clientY) / canvas.height - 1;
-        stopMotion(x, y);
-    });
- 
-    
-    canvas.addEventListener("mousemove", function (event) {
- 
-        var x = 2 * event.clientX / canvas.width - 1;
-        var y = 2 * (canvas.height - event.clientY) / canvas.height - 1;
-        mouseMotion(x, y);
+        isDragging = false;
     });
 
-    */
+    // Get the background element
+    var backgroundElement = document.getElementById("background");
 
+    // Get the initial background position
+    var initialBackgroundPosition = getComputedStyle(backgroundElement).backgroundPosition;
+    var [initialX, initialY] = initialBackgroundPosition.split(" ").map(parseFloat);
+
+    // Initialize variables to store the current background position
+    var currentX = initialX || 0;
+    var currentY = initialY || 0;
+
+
+    // Get the actual width and height of the background image
+    var backgroundImageWidth = 
+    var backgroundImageHeight = backgroundElement.height; // Set the actual height of your background image
+
+
+    document.addEventListener("mousemove", function (event) {
+        if (!isDragging) { // Don't do anything if mouse is not being dragged
+            return;
+        }
+        // Mouse move event handling for camera control
+        var sensitivity = 0.01; // Adjust sensitivity based on your preference
+
+        azimuth += sensitivity * event.movementX;
+        elevation -= sensitivity * event.movementY;
+
+        // Clamp elevation to avoid flipping the camera
+        elevation = Math.max(-89.0, Math.min(89.0, elevation));
+
+        setUpViewMatrix(); // Update the view matrix based on new camera angles
+
+        // Calculate the new background position based on mouse movement
+        var newX = currentX + event.movementX;
+        var newY = currentY + event.movementY;
+
+
+        // Bound checking to prevent moving beyond the borders
+        console.log(backgroundImageHeight);
+        console.log(backgroundImageWidth);
+        console.log(newX);
+        console.log(newY);
+        if (newX > backgroundImageWidth) newX = backgroundImageWidth;
+        if (newX < -backgroundImageWidth) newX = -backgroundImageWidth;
+        if (newY > backgroundImageHeight) newY = backgroundImageHeight;
+        if (newY < -backgroundImageHeight) newY = -backgroundImageHeight;
+
+
+        // Set the new background position
+        backgroundElement.style.backgroundPosition = newX + "px " + newY + "px";
+
+        // Update the current position
+        currentX = newX;
+        currentY = newY;
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+            console.log("here")
+            // Find all sliders on the page
+            var sliders = document.querySelectorAll(".slide");
+            // Find the currently focused input element
+            var focusedElement = document.activeElement;
+
+            if (!focusedElement || !focusedElement.classList.contains("slide")) {
+                sliders[0].focus();
+            }
+
+            // Check if it's a slider with the 'slide' class
+            if (focusedElement && focusedElement.classList.contains("slide")) {
+
+                // Find the index of the currently focused slider
+                var currentIndex = Array.from(sliders).indexOf(focusedElement);
+
+                // Move focus to the next slider in the sequence
+                if (currentIndex !== -1 && currentIndex < sliders.length - 1) {
+                    sliders[currentIndex + 1].focus();
+                }
+                if (currentIndex === sliders.length - 1) {
+                    sliders[0].focus();
+                }
+            }
+        } else if (event.ctrlKey) {
+            // Do the reverse of the above
+            var sliders = document.querySelectorAll(".slide");
+            var focusedElement = document.activeElement;
+
+            if (!focusedElement || !focusedElement.classList.contains("slide")) {
+                sliders[sliders.length - 1].focus();
+            }
+
+            if (focusedElement && focusedElement.classList.contains("slide")) {
+
+                var currentIndex = Array.from(sliders).indexOf(focusedElement);
+
+                if (currentIndex !== -1 && currentIndex > 0) {
+                    sliders[currentIndex - 1].focus();
+                }
+                if (currentIndex === 0) {
+                    sliders[sliders.length - 1].focus();
+                }
+            }
+        }
+    });
 
     render();
 }
 
 let startTime = null;
 
-var render = function (timestamp) {
+function setUpViewMatrix() {
+    var eye = vec3(5.0 * Math.sin(azimuth), 5.0 * Math.sin(elevation), 5.0 * Math.cos(azimuth));
+    var at = vec3(horizontal, vertical, 0.0);
+    var up = vec3(0.0, 1.0, 0.0);
 
+
+    modelViewMatrix = lookAt(eye, at, up);
+    gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelViewMatrix"), false, flatten(modelViewMatrix));
+}
+
+
+var render = function (timestamp) {
+    gl.clearColor(0.0, 0.0, 0.0, 0.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    setUpViewMatrix();
 
     // Configure texture
     gl.activeTexture(gl.TEXTURE0); // Set the active texture unit
@@ -1203,8 +1390,7 @@ var render = function (timestamp) {
         // disable the sliders etc.
         traverse(torsoId);
         renderRock(5.0, 5.0);
-        renderBaloon(1,1, 20)
-        head(20, 20);
+        renderBaloon(1, 1, 20)
         requestAnimFrame(render);
     } else if (mode === "stop") {
         // Only works in edit mode
@@ -1214,18 +1400,16 @@ var render = function (timestamp) {
             gl.uniformMatrix4fv(rotationMatrixLoc, false, flatten(rotationMatrix));
         }
         renderRock(5.0, 5.0);
-        renderBaloon(1,1, 20)
-        head(20, 20);
+        renderBaloon(1, 1, 20)
         traverse(torsoId);
         requestAnimFrame(render);
     } else if (mode === "idle") {
         // wait for animation to finish
-            // Configure texture
-           
+        // Configure texture
+
 
         renderRock(5.0, 5.0);
-        renderBaloon(1,1, 20);
-        head(20, 20);
+        renderBaloon(1, 1, 20);
     }
 
 }
@@ -1280,12 +1464,12 @@ let playScene = (timestamp, start_time, time_difference, difference_theta, previ
     gl.bindTexture(gl.TEXTURE_2D, texture); // Bind the texture
     gl.uniform1i(gl.getUniformLocation(program, "texture"), 0); // Set the texture unit to 0
     renderRock(5.0, 5.0);
-    head(20, 20);
-    renderBaloon(1,1, (item_fps_counter / 5) + 5, 1);
-    renderBaloon(1,1, (item_fps_counter / 5) + 10, 0.8, 5);
-    renderBaloon(1,1, (item_fps_counter / 5) + 15, 0.8, -5);
+    //head(20, 20);
+    renderBaloon(1, 1, (item_fps_counter / 5) + 5, 1);
+    renderBaloon(1, 1, (item_fps_counter / 5) + 10, 0.8, 5);
+    renderBaloon(1, 1, (item_fps_counter / 5) + 15, 0.8, -5);
 
-    
+
 
     fps_counter++;
     item_fps_counter++;
