@@ -489,7 +489,7 @@ function renderRock(height, width) {
     instanceMatrix = mult(modelViewMatrix, translate(17.5, 2 * -1.2 * height, 0.0));
     instanceMatrix = mult(instanceMatrix, scale4(width, height, width));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-    for (var i = 72; i < index; i += 3)
+    for (var i = 72; i < index + 200; i += 3)
         gl.drawArrays(gl.TRIANGLES, i, 3)
 
 }
