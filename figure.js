@@ -83,13 +83,7 @@ let middleLeg;
 let lowerLeg;
 
 
-// Head
 var torsoId = 0;
-
-// Head
-//var headId = 25;
-//var head1Id = 25;
-//var head2Id = 26;
 
 // Leg 1
 let cornerFrontLeftUpperId = 1;
@@ -160,14 +154,11 @@ var lowerLegHeight = 2.0;
 var headHeight = 1.5;
 var headWidth = 1.0;
 
-// Increase when new body part
 var numNodes = 25;
 
-// Increase when new joint
 var numAngles = 30;
 var angle = 0;
 
-// Add new when new 
 var theta = [60, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 180, 0, 0, 0, 0, 0, 0, 0];
 
 var numVertices = 25;
@@ -183,10 +174,6 @@ var modelViewLoc;
 
 var pointsArray = [];
 var colorsArray = [];
-
-
-
-// TrackBall
 
 var rotationMatrix;
 var rotationMatrixLoc;
@@ -272,27 +259,12 @@ function initNodes(Id) {
 
         case torsoId:
 
-            //m = rotate(theta[torsoId], theta[torsoNewRotateAngel], 1, theta[torsoNewRotateAngel2]);
             m = rotate(theta[torsoId], 0, 1, 0);
             m = mult(m, rotate(theta[torsoNewRotateAngel], 1, 0, 0));
             m = mult(m, rotate(theta[torsoNewRotateAngel2], 0, 0, 1));
             m = mult(m, translate(theta[movementIdX], theta[movementIdY], theta[movementIdZ]));
             figure[torsoId] = createNode(m, torso, null, cornerFrontLeftUpperId);
             break;
-
-        /*
-        case headId:
-        case head1Id:
-        case head2Id:
-
-
-            //m = translate(0.0, (torsoHeight + 0.5 * headHeight), 0.0);
-            //m = mult(m, rotate(theta[head1Id], 1, 0, 0))
-            //m = mult(m, rotate(theta[head2Id], 0, 1, 0));
-            //m = mult(m, translate(0.0, -0.5 * headHeight, 0.0));
-            figure[headId] = createNode(m, head, cornerFrontLeftUpperId, null);
-            break;
-        */
 
         // Corner Front Leg Cases
         case cornerFrontLeftUpperId:
@@ -471,9 +443,6 @@ function lowerHead() {
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
-
-
-// Make one function which takes params to create below functions belows are too much duplicated
 function createBodyPart(height, width, scale) {
     return function () {
         instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * height, 0.0));
@@ -570,7 +539,7 @@ function quad(a, b, c, d, isFront, pos, color, isBg) {
     }
     else if (isBg) {
         texCoordsArray.push(texCoordBackground[3]);
-        console.log("HERE!!")
+         
     }
     else {
         texCoordsArray.push(texCoord[0]);
@@ -843,22 +812,15 @@ window.onload = function init() {
     let sliderValues = Array(sliderIds.length).fill(0).map(Number);
     currentKeyframe = 0;
 
-    // write updateSliders function
-    let updateSliders = () => {
-        // deep copy keyframes[currentKeyframe].theta
-        console.log("update sliders");
-        console.log(keyframeLayers);
-        console.log(keyframes);
-        console.log(currentKeyframe);
+    let updateSliders = () => {          
         const deep_copy_theta = deepCopy(keyframes[currentKeyframe].theta);
         theta = deepCopy(deep_copy_theta);
 
-        // If head becomes functional, rewrite this one
         sliderIds.forEach((id, index) => {
             const slider = document.getElementById(id).getElementsByClassName("slide")[0];
             const newValue = parseInt(keyframes[currentKeyframe].sliderValues[index]);
             if (slider.value != newValue) {
-                console.log("slider value: ", slider.value);
+                 
                 slider.value = newValue;
                 sliderValues[index] = parseInt(slider.value);
                 if (sliderVariables[id] >= 25 && sliderVariables[id] <= 29) {
@@ -867,36 +829,22 @@ window.onload = function init() {
                     initNodes(sliderVariables[id]);
                 }
             }
-
-            /*
-            // trigger on change
-            // Create a new 'change' event
-            var event = new Event('change');
-
-            // Dispatch the 'change' event on the slider
-            slider.dispatchEvent(event);
-            */
-        });
-        sliderValues.map((value, index) => {
-            console.log("value", value);
         });
     }
 
     document.getElementById("click-listener").addEventListener("click", () => {
-        console.log("inside click listener");
-        console.log(pointTimePositions);
-        console.log("operations: ", operations);
-        console.log("previousOperations: ", previousOperations);
+         
+         
+         
+         
 
         const copyOperations = deepCopy(operations);
 
-        // need to use the operations that in operations array but not in previousOperations (only traverse previosuOperations.length < operations.length)
         copyOperations.splice(previousOperations.length, copyOperations.length).forEach(operation => {
-            console.log(operation);
+             
             // if last operation is move
             if (operation.type === "move") {
                 // update the keyframe
-
                 /*
                 if (currentKeyframe == operation.id) {
                     keyframes[currentKeyframe].pointTime = operation.position;
@@ -913,10 +861,9 @@ window.onload = function init() {
                 }
                 */
             } else if (operation.type === "create") {
-                // create the keyframe
                 keyframes.push({ id: operation.id, pointTime: operation.position, theta: deepCopy(theta), sliderValues: deepCopy(sliderValues) });
-                console.log("keyframes", keyframes);
-                console.log(keyframeContainers[currentKeyframeContainer]);
+                 
+                 
                 keyframeContainers[currentKeyframeContainer].pointTimePositions = deepCopy(pointTimePositions);
                 if (keyframeContainers[currentKeyframeContainer].ids.indexOf(operation.id) === -1) {
                     keyframeContainers[currentKeyframeContainer].ids.push(operation.id);
@@ -926,7 +873,7 @@ window.onload = function init() {
                 }
 
                 currentKeyframe = operation.id;
-                console.log("pointTimePositions", pointTimePositions);
+                 
             } else if (operation.type === "select") {
                 // save the current theta
                 keyframes[currentKeyframe].theta = deepCopy(theta);
@@ -934,16 +881,12 @@ window.onload = function init() {
                 // save the current slider values
                 keyframes[currentKeyframe].sliderValues = deepCopy(sliderValues);
 
-                console.log(keyframes[currentKeyframe]);
-                // select the keyframe
-                // cast to int
                 currentKeyframe = parseInt(operation.id);
-                console.log("changed to", keyframes[currentKeyframe]);
-                console.log(currentKeyframe);
+                 
+                 
                 // update the theta
-                console.log(keyframes[currentKeyframe].theta);
+                 
                 theta = deepCopy(keyframes[currentKeyframe].theta);
-                // update the sliders
                 updateSliders();
             } else if (operation.type === "layer-change-before") {
                 keyframes[currentKeyframe].theta = deepCopy(theta);
@@ -958,21 +901,21 @@ window.onload = function init() {
                 currentKeyframe = 0;
                 sliderValues = Array(sliderIds.length).fill(0).map(Number);
                 theta = deepCopy(defaultTheta);
-                console.log(keyframeLayers);
+                 
             } else if (operation.type === "layer-change-after") {
-                console.log(keyframes);
-                console.log("layer-change-after");
-                console.log(currentKeyframeContainer);
-                console.log(keyframeLayers);
+                 
+                 
+                 
+                 
                 if (currentKeyframeContainer < keyframeLayers.length) {
-                    console.log("Insideeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-                    console.log(keyframeLayers[currentKeyframeContainer][0]);
+                     
+                     
                     keyframes = deepCopy(keyframeLayers[currentKeyframeContainer]);
                     currentKeyframe = 0;
                     theta = deepCopy(keyframes[currentKeyframe].theta);
                     updateSliders();
                 } else {
-                    console.log("Outsideeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+                     
                     currentKeyframe = 0;
                     if (keyframes.length === 0) {
                         keyframes = [{ id: 0, pointTime: 0, theta: deepCopy(theta), sliderValues: deepCopy(sliderValues) }];
@@ -980,16 +923,9 @@ window.onload = function init() {
                     keyframeLayers.push(deepCopy(keyframes));
                     updateSliders();
                 }
-                console.log(keyframes);
-                console.log(sliderValues);
+                 
+                 
             } else if (operation.type === "save") {
-                console.log("save");
-                console.log(theta);
-                console.log(sliderValues);
-                console.log(keyframes);
-                console.log(currentKeyframe);
-                console.log(pointTimePositions);
-
                 // save the current theta
                 keyframes[currentKeyframe].theta = deepCopy(theta);
 
@@ -1000,8 +936,7 @@ window.onload = function init() {
             } else if (operation.type === "play") {
 
                 currentKeyframe = parseInt(operation.id);
-                console.log("changed to", keyframes[currentKeyframe]);
-                console.log(currentKeyframe);
+
                 // update the theta
                 theta = deepCopy(keyframes[currentKeyframe].theta);
             }
@@ -1009,8 +944,8 @@ window.onload = function init() {
         });
 
         previousOperations = deepCopy(operations);
-        console.log("operations processedddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", operations);
-        console.log("previousOperations changed toooooooooooooooooooooooooooooooooooooooooooooooooooooooo", previousOperations);
+         
+         
     });
 
 
@@ -1047,9 +982,9 @@ window.onload = function init() {
 
     cube(false, colorsWhite, false);
     cube(true, colorsWhite, false);
-    console.log(pointsArray)
+     
     cube(false, colorsWhite, true);
-    console.log(pointsArray)
+     
 
     tetrahedron(va, vb, vc, vd, numTimesToSubdivide);
 
@@ -1096,7 +1031,7 @@ window.onload = function init() {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
         gl.generateMipmap(gl.TEXTURE_2D);
     });
-    console.log(pointsArray)
+     
     textureBackground = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
@@ -1113,7 +1048,6 @@ window.onload = function init() {
         gl.generateMipmap(gl.TEXTURE_2D);
     });
 
-    // function
     let fillValues = (value, id, option = null) => {
         if (option) {
             if (option === "middle") {
@@ -1128,9 +1062,9 @@ window.onload = function init() {
         }
         sliderValues[sliderIds.indexOf(id)] = value;
         value = normalizedSliderValue(value, id);
-        console.log(sliderVariables[id], value);
-        console.log("id: ", id);
-        console.log(theta[sliderVariables[id]]);
+         
+         
+         
         theta[sliderVariables[id]] = value;
         if (sliderVariables[id] >= 25 && sliderVariables[id] <= 29) {
             initNodes(torsoId);
@@ -1221,19 +1155,14 @@ window.onload = function init() {
     horizontal = 0;
 
     document.addEventListener("keydown", function (event) {
-        // Your existing key event handling code
         if (event.key === "ArrowUp" && event.shiftKey) {
-            // Move the "at" point up
-            vertical += 0.1; // Adjust the increment based on your preference
+            vertical += 0.1; 
         } else if (event.key === "ArrowDown" && event.shiftKey) {
-            // Move the "at" point down
-            vertical -= 0.1; // Adjust the increment based on your preference
+            vertical -= 0.1; 
         } else if (event.key === "ArrowLeft" && event.shiftKey) {
-            // Move the "at" point left
-            horizontal -= 0.1; // Adjust the increment based on your preference
+            horizontal -= 0.1; 
         } else if (event.key === "ArrowRight" && event.shiftKey) {
-            // Move the "at" point right
-            horizontal += 0.1; // Adjust the increment based on your preference
+            horizontal += 0.1;
         }
 
         // Update the view matrix based on new camera angles
@@ -1264,23 +1193,22 @@ window.onload = function init() {
 
     // Get the actual width and height of the background image
     var backgroundImageWidth = backgroundElement.width; 
-    var backgroundImageHeight = backgroundElement.height; // Set the actual height of your background image
+    var backgroundImageHeight = backgroundElement.height;
 
 
     document.addEventListener("mousemove", function (event) {
-        if (!isDragging) { // Don't do anything if mouse is not being dragged
+        if (!isDragging) { 
             return;
         }
-        // Mouse move event handling for camera control
-        var sensitivity = 0.01; // Adjust sensitivity based on your preference
+      
+        var sensitivity = 0.01; 
 
         azimuth += sensitivity * event.movementX;
         elevation -= sensitivity * event.movementY;
 
-        // Clamp elevation to avoid flipping the camera
         elevation = Math.max(-89.0, Math.min(89.0, elevation));
 
-        setUpViewMatrix(); // Update the view matrix based on new camera angles
+        setUpViewMatrix();
 
         // Calculate the new background position based on mouse movement
         var newX = currentX + event.movementX;
@@ -1288,10 +1216,6 @@ window.onload = function init() {
 
 
         // Bound checking to prevent moving beyond the borders
-        console.log(backgroundImageHeight);
-        console.log(backgroundImageWidth);
-        console.log(newX);
-        console.log(newY);
         if (newX > 130) newX = 130;
         if (newX < 0) newX = 0;
         if (newY > 0) newY = 0;
@@ -1308,7 +1232,7 @@ window.onload = function init() {
 
     document.addEventListener("keydown", function (event) {
         if (event.key === "Enter") {
-            console.log("here")
+             
             // Find all sliders on the page
             var sliders = document.querySelectorAll(".slide");
             // Find the currently focused input element
@@ -1407,8 +1331,6 @@ var render = function (timestamp) {
         requestAnimFrame(render);
     } else if (mode === "idle") {
         // wait for animation to finish
-        // Configure texture
-
 
         renderRock(5.0, 5.0);
         renderBaloon(1, 1, 20);
@@ -1421,13 +1343,13 @@ var render = function (timestamp) {
 }
 
 let preparePlayingScene = (timestamp) => {
-    //keyframes = keyframes.sort((a, b) => a.pointTime - b.pointTime);
+    keyframes = keyframes.sort((a, b) => a.pointTime - b.pointTime);
     if (currentKeyframe + 1 == keyframes.length) {
         startTime = null;
         currentKeyframe = keyframes[0].id;
         operations.push({ type: "play", id: currentKeyframe });
-        console.log("finish");
-        console.log("keyframes", keyframes);
+         
+         
         document.getElementById("click-listener").click();
 
         mode = "stop";
@@ -1438,9 +1360,9 @@ let preparePlayingScene = (timestamp) => {
 
     let time_difference_in_fps = (keyframes[currentKeyframe + 1].pointTime - keyframes[currentKeyframe].pointTime) * 60;
     theta = deepCopy(keyframes[currentKeyframe].theta);
-    console.log(keyframes[currentKeyframe].theta);
-    console.log(theta);
-    console.log(keyframes[currentKeyframe + 1].theta);
+     
+     
+     
 
     let difference_theta = keyframes[currentKeyframe + 1].theta.map((value, index) => {
         let dif_theta_op_1 = (value - theta[index]);
@@ -1462,15 +1384,13 @@ let fps_counter = 0;
 let item_fps_counter = 0;
 
 let playScene = (timestamp, start_time, time_difference, difference_theta, previous_progress) => {
-    //console.log("timestamp: ", timestamp, "start_time: ", start_time, "time_difference: ", time_difference, "difference_theta: ", difference_theta);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     // Configure texture
-    gl.activeTexture(gl.TEXTURE0); // Set the active texture unit
-    gl.bindTexture(gl.TEXTURE_2D, texture); // Bind the texture
-    gl.uniform1i(gl.getUniformLocation(program, "texture"), 0); // Set the texture unit to 0
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
     renderRock(5.0, 5.0);
-    //head(20, 20);
     renderBaloon(1, 1, (item_fps_counter / 5) + 5, 1);
     renderBaloon(1, 1, (item_fps_counter / 5) + 10, 0.8, 5);
     renderBaloon(1, 1, (item_fps_counter / 5) + 15, 0.8, -5);
@@ -1485,17 +1405,8 @@ let playScene = (timestamp, start_time, time_difference, difference_theta, previ
     item_fps_counter++;
     let progress = fps_counter / time_difference;
     let elapsed_progress = progress - previous_progress;
-    /*
-    if (progress > 1) {
-        console.log("here progress", progress);
-    }
-    console.log("progress: ", progress);
-    */
-    // Update the theta values
+
     theta = theta.map((value, index) => value + difference_theta[index] * elapsed_progress);
-
-    console.log(difference_theta);
-
 
     for (let i = 0; i < 25; i++) {
         initNodes(i);

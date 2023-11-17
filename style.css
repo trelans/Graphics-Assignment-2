@@ -21,6 +21,11 @@ body {
     border-left: 1px solid #000;
 }
 
+#shortcut-list {
+    list-style-type: none;
+    padding: 10px;
+}
+
 #timeline-container {
     grid-row: 3;
     grid-column: span 3;
